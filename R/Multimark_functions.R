@@ -1,7 +1,8 @@
 
 
-#' Multimark Model Closed Sometimes (Table Maker)
+#' Multimark Model Closed Sometimes
 #'
+#' @param infile Path to the input file
 #' @return csv table
 #' @export
 MltiM.Closed.Sometimes.TM<-function(
