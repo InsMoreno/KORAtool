@@ -15,7 +15,7 @@
 #'    - The 2 csv must be in the folder of the used RStudio Project
 #'    - Date must in csv must be in '%Y-%m-%d %H:%M:%S' (Standard KORA data and R format)
 #'
-#' @param
+#' @param test
 #' @return
 #' @export
 MltiM.Closed.Sometimes.TM<-function(
