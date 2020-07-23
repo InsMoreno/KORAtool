@@ -5,16 +5,16 @@
 #' @return csv table
 #' @export
 MltiM.Closed.Sometimes.TM<-function(
-  location.folders,
+  path,
   KORA.Photo.Output,
   Lynx.Master.Output,
   Period.day,
   simultaneous.minute
 ){
   # ---- Import Data ####
-  setwd(location.folders)
+
   # Import KORA Photo data
-  Lynx<-data.table::fread(KORA.Photo.Output, select=c(
+  Lynx<-data.table::fread(file.path(path, KORA.Photo.Output), select=c(
     "exposure_date",
     "exposure_time",
     "session_study_start_date",
@@ -25,7 +25,7 @@ MltiM.Closed.Sometimes.TM<-function(
     "id_flank"))
 
   # Import KORA Mother Info
-  Mother<-data.table::fread(Lynx.Master.Output, select=c("mother","fofaID","yearOfBirth"))
+  Mother<-data.table::fread(file.path(path, Lynx.Master.Output), select=c("mother","fofaID","yearOfBirth"))
 
   # ---- Info to Create Empty Matrix ####
 
