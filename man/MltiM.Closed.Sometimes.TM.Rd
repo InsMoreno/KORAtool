@@ -12,21 +12,21 @@ MltiM.Closed.Sometimes.TM(
 )
 }
 \arguments{
-\item{infile}{Path to the input file}
+\item{infile}{Table Maker}
 }
 \value{
 csv table
 }
 \description{
 Multimark Model Closed Sometimes
-This function can be used to create the Matrix needed for the Multimark model.The following input are needed:
-- KORA.Photo.Output: "Nameofthecsv.csv" ouput from KORA photo (only lynx of the session)
-- Lynx.Master.Output: "Nameofthecsv.csv" output from KORA data
-- Period.day: How long should be the period (ex. Period.day=3)
-- What is considered as simultaneous sighting? (ex. simultaneous.minute=30)
+    This function can be used to create the Matrix needed for the Multimark model.The following input are needed:
+    - KORA.Photo.Output: "Nameofthecsv.csv" ouput from KORA photo (only lynx of the session)
+    - Lynx.Master.Output: "Nameofthecsv.csv" output from KORA data
+    - Period.day: How long should be the period (ex. Period.day=3)
+    - What is considered as simultaneous sighting? (ex. simultaneous.minute=30)
 
-!!! Important Note:
-- CSV should be in the folder of your RStudio Project
-- date should be in R standard ("%Y-%m-%d %H:%M:%S")
+    !!! Important Note:
+    - CSV should be in the folder of your RStudio Project
+    - date should be in R standard ("%Y-%m-%d %H:%M:%S")
 
 }
