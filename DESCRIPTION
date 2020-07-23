@@ -15,7 +15,7 @@ License: KORA
 Encoding: UTF-8
 LazyData: true
 Depends:
-  data.table
-  utlis
+  data.table,
+  utlis,
   tidyr
 RoxygenNote: 7.1.0
