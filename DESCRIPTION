@@ -11,6 +11,7 @@ Description: Repository for tools used by the fundation KORA.
         - http://r-pkgs.had.co.nz/git.html
         Library in package:
         - https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
+        -
 License: KORA
 Encoding: UTF-8
 LazyData: true
