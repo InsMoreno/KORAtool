@@ -11,7 +11,8 @@ Description: Repository for tools used by the fundation KORA.
         - http://r-pkgs.had.co.nz/git.html
         Library in package:
         - https://tinyheero.github.io/jekyll/update/2015/07/26/making-your-first-R-package.html
-        -
+        Reading JSON Data
+        - https://stackoverflow.com/questions/20925492/how-to-import-json-into-r-and-convert-it-to-table
 License: KORA
 Encoding: UTF-8
 LazyData: true
