@@ -5,13 +5,14 @@
 #' @return csv table
 #' @export
 MltiM.Closed.Sometimes.TM<-function(
+  location.folders,
   KORA.Photo.Output,
   Lynx.Master.Output,
   Period.day,
   simultaneous.minute
 ){
   # ---- Import Data ####
-
+  setwd(location.folders)
   # Import KORA Photo data
   Lynx<-data.table::fread(KORA.Photo.Output, select=c(
     "exposure_date",
