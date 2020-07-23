@@ -175,7 +175,7 @@ MltiM.Closed.Sometimes.TM<-function(
   Occ.table[is.na(Occ.table$Category),"Category"]<-paste("YOB",U.Lynx[U.Lynx$id_individual %in% Occ.table[is.na(Occ.table$Category),ID],yearOfBirth])
 
   # ---- Write CSV ####
-  utils::write.csv(Occ.table, "Input_Table_Multimark_Closed_sometimes.csv")
+  write.csv(Occ.table, "Input_Table_Multimark_Closed_sometimes.csv")
 }
 
 
