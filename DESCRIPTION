@@ -15,4 +15,4 @@ License: KORA
 Encoding: UTF-8
 LazyData: true
 Imports:
-  data.table(>=1.10.4)
+  data.table
