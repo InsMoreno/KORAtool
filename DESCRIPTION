@@ -14,5 +14,4 @@ Description: Repository for tools used by the fundation KORA.
 License: KORA
 Encoding: UTF-8
 LazyData: true
-Imports:
-  data.table
+
