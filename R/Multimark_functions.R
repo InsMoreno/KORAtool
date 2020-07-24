@@ -2,16 +2,9 @@
 #' Multimark Model Closed Sometimes
 #'
 #'This function creates a table to be used for the model Multimark Closed Sometimes
-#'    Input needed:
-#'    - KORA.Photo.Output = "Nameofcsv.csv" KORA ouput with lynx observed (All have been IDed)
-#'    - Lynx.Master.Output = "Nameofcsv.csv" KORA data ouput Master Lynx (For mother info)'
-#'    - Period.day: (ex. Period.day=3)
-#'    - simultaneous.minute: (ex. simultaneous.minute=30)
-#'    Important Note:
-#'    - The 2 csv must be in the folder of the used RStudio Project
-#'    - Date must in csv must be in '%Y-%m-%d %H:%M:%S' (Standard KORA data and R format)
 #'
-#' @param test
+#'
+#' @param # Author: Le Grand
 #' @return
 #' @export
 MltiM.Closed.Sometimes.TM<-function(
