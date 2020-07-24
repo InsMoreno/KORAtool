@@ -11,11 +11,8 @@ MltiM.Closed.Sometimes.TM(
   simultaneous.minute
 )
 }
-\arguments{
-\item{Luc}{Le Grand}
-}
 \value{
-table
+
 }
 \description{
 This function creates a table to be used for the model Multimark Closed Sometimes
