@@ -14,6 +14,8 @@ Description: Repository for tools used by the fundation KORA.
         Document: devtools::document()
         Reading JSON Data
         - https://stackoverflow.com/questions/20925492/how-to-import-json-into-r-and-convert-it-to-table
+        Change Library position:
+        myPaths <- .libPaths()   # get the paths; myPaths <- c(myPaths[2], myPaths[1])  # switch them; .libPaths(myPaths)  # reassign them
 License: KORA
 Encoding: UTF-8
 LazyData: true
