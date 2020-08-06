@@ -13,7 +13,7 @@ EvCountR<-function(
   species
 ){
   # ---- Import Data ####
-
+  KORA.Photo.Output[1:5,]
   # Import KORA Photo data
   M.Table<-data.table(KORA.Photo.Output[,c(
     "animal_species",
