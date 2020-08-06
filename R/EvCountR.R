@@ -2,9 +2,6 @@
 #'
 #'This function creates a table with the number of event for a given species.
 #'
-#' @param KORA.Photo.Output Name of the object in R consol. Should be the KORA ouput with lynx or any other species observed (All have been IDed)
-#' @param Event_length
-#' @param species
 #'
 #' @return
 EvCountR<-function(
