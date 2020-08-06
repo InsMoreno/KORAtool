@@ -6,11 +6,6 @@
 \usage{
 EvCountR(KORA.Photo.Output, Event_length, species)
 }
-\arguments{
-\item{KORA.Photo.Output}{Name of the object in R consol. Should be the KORA ouput with lynx or any other species observed (All have been IDed)}
-
-\item{species}{}
-}
 \value{
 
 }
