@@ -19,8 +19,7 @@ EvCountR<-function(
     "animal_species",
     "exposure_date",
     "exposure_time",
-    "id_individual",
-    "id_flank")])
+    "id_individual")])
 
   # ---- Arange Master Table ####
 
