@@ -7,11 +7,7 @@
 EvCountjson(KORA.Photo.Output, Event_length, species)
 }
 \arguments{
-\item{Event_length}{Time window to be considered as independent in minutes (ex. 30)}
-
-\item{KORA.Photo.Output:}{Name folder (.json)}
-
-\item{species:}{Species name in latin (ie "Lynx lynx")}
+\item{#}{Author: Luc Le Grand}
 }
 \value{
 

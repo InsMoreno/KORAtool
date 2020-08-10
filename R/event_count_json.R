@@ -2,9 +2,7 @@
 #'
 #' This function creates a table with the number of event for a given species.
 #'
-#' @param KORA.Photo.Output: Name folder (.json)
-#' @param Event_length Time window to be considered as independent in minutes (ex. 30)
-#' @param species: Species name in latin (ie "Lynx lynx")
+#' @param # Author: Luc Le Grand
 #'
 #' @return
 #' @export

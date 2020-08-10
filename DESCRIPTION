@@ -21,5 +21,6 @@ Encoding: UTF-8
 LazyData: true
 Depends:
   data.table,
-  tidyr
+  tidyr,
+  jsonlite
 RoxygenNote: 7.1.1
