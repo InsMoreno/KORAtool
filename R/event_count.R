@@ -51,7 +51,7 @@ EvCount<-function(
       duration = difftime(timestamp[.N], timestamp[1L], units = "mins")
     ),
     by = .(XY,
-           cumsum(difftime(timestamp, shift(timestamp, fill = timestamp[1L]), "mins") > Event_length))]
+           cumsum(difftime(timestamp, data.table::shift(timestamp, fill = timestamp[1L]), "mins") > Event_length))]
 
     Table[i, "Event"]<-length(df$cumsum)
     Table[i,"N pictures"]<-sum(df$sensorCount)
@@ -59,7 +59,7 @@ EvCount<-function(
   }
 
   # creates the "Total" row
-  Table<-rbind(Table,data.table(ID = "Total", t(colSums(Table[, -1]))))
+  Table<-rbind(Table,data.table::data.table(ID = "Total", t(colSums(Table[, -1]))))
 
   # Total site should be the total of unique site
   Table[Table$ID=="Total","N site"]<-length(unique(M.Table[M.Table$animal_species==species,XY]))
@@ -68,5 +68,6 @@ EvCount<-function(
   print(Table)
   warning("Total N site is equal to the total number of UNIQUE site where the species has been seen")
 }
+
 
 
