@@ -7,11 +7,11 @@
 EvCountjson(KORA.Photo.Output, Event_length, species)
 }
 \arguments{
-\item{#}{Author: Luc Le Grand}
+\item{species}{}
 }
 \value{
 
 }
 \description{
-This function creates a table with the number of event for a given species.
+EvCountjson
 }

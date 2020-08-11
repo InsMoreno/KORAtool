@@ -1,8 +1,8 @@
 #' EvCountjson
 #'
-#' This function creates a table with the number of event for a given species.
-#'
-#' @param # Author: Luc Le Grand
+#' @param KORA.Photo.Output
+#' @param Event_length
+#' @param species
 #'
 #' @return
 #' @export

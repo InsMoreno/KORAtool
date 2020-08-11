@@ -35,7 +35,7 @@ EvCount<-function(
   M.Table$XY<-paste(M.Table$x,M.Table$y, sep=";")
 
   # ---- Create output table ####
-  Table<-data.table::data.table(ID=unique(M.Table[M.Table$animal_species==species,"id_individual"]), Event=0)
+  Table<-data.table::data.table(ID=unique(M.Table[M.Table$animal_species==species,id_individual]), Event=0)
 
   # Count number of events/N pictures
 
