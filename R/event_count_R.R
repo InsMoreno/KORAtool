@@ -57,7 +57,6 @@ EvCountR<-function(
   Table[Table$ID=="Total","N site"]<-length(unique(M.Table[,XY]))
 
   # ---- Print ouput ####
-  return(Table)
   print(Table)
   cat("\n")
   cat("Warning:\n")
