@@ -57,9 +57,12 @@ EvCountR<-function(
   Table[Table$ID=="Total","N site"]<-length(unique(M.Table[,XY]))
 
   # ---- Print ouput ####
-  #print(Table)
-  print(paste(Table, "Total N site is equal to the total number of UNIQUE site where the species has been seen"))
-  #warning("Total N site is equal to the total number of UNIQUE site where the species has been seen")
+  return(Table)
+  print(Table)
+  cat("\n")
+  cat("Warning:\n")
+  cat("Total N site is equal to the total number of UNIQUE site where the species has been seen")
+
 }
 
 
