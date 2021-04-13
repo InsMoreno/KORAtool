@@ -235,7 +235,7 @@ KORAmap<-function(
 
   # --- Add points:####
 
- map<-map+ggplot2::geom_point(data=table[table$animal_species=="Felis silvestris",],
+ map<-map+ggplot2::geom_point(data=table[table$animal_species==species,],
                         ggplot2::aes(x=x,y=y),
                         col="black", pch=19, cex=1)
 
