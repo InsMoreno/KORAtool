@@ -165,7 +165,7 @@ KORAmap<-function(
   suppressWarnings(
 
     for(i in 1:length(ID.names$ID)){
-      dat <- table[table$id_individual==ID.names[i,ID],c("x","y")]
+      dat <- table[table$id_individual==ID.names[i,"ID"],c("x","y")]
 
       ch <- grDevices::chull(dat)
       coords<-dat[c(ch, ch[1]), ]  # closed polygon
