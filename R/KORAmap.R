@@ -160,8 +160,8 @@ KORAmap<-function(
 
 
   # -- Compute the polygons
-  sp_poly.all<-1
-  sp_poly.all<-list(sp_poly.all)
+  sp_poly.all <- vector(mode = "list", length = length(ID.names$ID))
+  
   suppressWarnings(
 
     for(i in 1:length(ID.names$ID)){
