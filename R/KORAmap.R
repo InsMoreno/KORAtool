@@ -19,7 +19,7 @@ KORAmap<-function(
 
   #Used during Function building to be removed when script working:
   #KORA.Photo.Output<-"6076923ca5c5d.csv"
-  #Buffer<-0.02
+  #Buffer<-0.01
   #species <-"Lynx lynx"
   #IDremove<-"SO2020U"
 
@@ -161,7 +161,7 @@ KORAmap<-function(
 
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list", length = length(ID.names$ID))
-  
+
   suppressWarnings(
 
     for(i in 1:length(ID.names$ID)){
