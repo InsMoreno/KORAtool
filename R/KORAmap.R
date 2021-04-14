@@ -12,9 +12,9 @@
 #' @examples
 KORAmap<-function(
   KORA.Photo.Output,
-  species <- "Lynx lynx",
-  Buffer <- 0.02,
-  IDremove <- c("")
+  species,
+  Buffer,
+  IDremove
 ){
 
   #Used during Function building to be removed when script working:
@@ -48,8 +48,8 @@ KORAmap<-function(
 
   # ------ Projection : ####
   #Projection to be used for the map (CH1903 / LV03):
-  CRS<- sp::CRS("+init=epsg:21781")
-
+  #Warnings OK
+  suppressWarnings(CRS<- sp::CRS("+init=epsg:21781"))
 
   # ------ Study Area ####
 
@@ -85,15 +85,17 @@ KORAmap<-function(
   LON1 = study_area_lat_long@bbox[1,1] ; LON2 = study_area_lat_long@bbox[1,2]
 
   #Get the map
-  map <- OpenStreetMap::openmap(c(LAT2,LON1), c(LAT1,LON2), zoom = NULL,
-                                type = c("stamen-terrain")[1],
-                                mergeTiles = TRUE)
+  #warnings OK
+  suppressWarnings(map <- OpenStreetMap::openmap(c(LAT2,LON1), c(LAT1,LON2), zoom = NULL,
+                                                 type = c("stamen-terrain")[1],
+                                                 mergeTiles = TRUE))
 
 
 
 
   #Correct projection
-  map <- OpenStreetMap::openproj(map, projection = "+init=epsg:21781")
+  #warnings OK
+  suppressWarnings(map <- OpenStreetMap::openproj(map, projection = "+init=epsg:21781"))
 
   # ------ Build map ####
 
@@ -154,26 +156,29 @@ KORAmap<-function(
 
   # -- remove unwanted ID
   if(exists("IDremove")){ID.names<-ID.names[ID.names$ID!=IDremove,]}
-  if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
+
 
 
   # -- Compute the polygons
   sp_poly.all<-NULL
   sp_poly.all<-list(sp_poly.all)
-  for(i in 1:length(ID.names$ID)){
-    dat <- table[table$id_individual==ID.names[i,ID],c("x","y")]
+  suppressWarnings(
 
-    ch <- grDevices::chull(dat)
-    coords<-dat[c(ch, ch[1]), ]  # closed polygon
+    for(i in 1:length(ID.names$ID)){
+      dat <- table[table$id_individual==ID.names[i,ID],c("x","y")]
 
-    sp_poly <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords)), ID=ID.names[i,"ID"])))
-    raster::crs(sp_poly)<-CRS
+      ch <- grDevices::chull(dat)
+      coords<-dat[c(ch, ch[1]), ]  # closed polygon
 
-    sp_poly<-rgeos::gBuffer(sp_poly,width=500)
-    raster::crs(sp_poly)<-CRS
-    sp_poly.all[i]<-sp_poly
+      sp_poly <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords)), ID=ID.names[i,"ID"])))
+      raster::crs(sp_poly)<-CRS
 
-  }
+      sp_poly<-rgeos::gBuffer(sp_poly,width=500)
+      raster::crs(sp_poly)<-CRS
+      sp_poly.all[i]<-sp_poly
+
+    }
+  )
 
   # -- Data labels
 
@@ -203,7 +208,8 @@ KORAmap<-function(
     data_labels[i, "col.ID"]<- ID.names[i,col]
   }
 
-
+  # -- remove unwanted ID
+  if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
 
 
   # -- Add to the map
@@ -248,7 +254,10 @@ KORAmap<-function(
 
   # ------------------- Export the plot:####
 
-    ggplot2::ggsave("Map_save.jpeg",plot=map,
+    ggplot2::ggsave(paste("Map_",
+                          Sys.Date(),"_",
+                          sprintf("%02d", data.table::hour(Sys.time())),
+                          data.table::minute(Sys.time()),".jpeg",sep=""),plot=map,
            units = "cm",
            width = 24,
            height = 16)
