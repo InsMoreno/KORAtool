@@ -12,9 +12,9 @@
 #' @examples
 KORAmap<-function(
   KORA.Photo.Output,
-  species = "Lynx lynx",
-  Buffer = 0.02,
-  IDremove = c("")
+  species <- "Lynx lynx",
+  Buffer <- 0.02,
+  IDremove <- c("")
 ){
 
   #Used during Function building to be removed when script working:
