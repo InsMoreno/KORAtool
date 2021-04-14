@@ -160,7 +160,7 @@ KORAmap<-function(
 
 
   # -- Compute the polygons
-  sp_poly.all<-NULL
+  sp_poly.all<-1
   sp_poly.all<-list(sp_poly.all)
   suppressWarnings(
 
