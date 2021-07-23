@@ -123,9 +123,11 @@ KORAmap<-function(
   # ------ Build map ####
   
   # --- Open Source Map in ggplot:####
-  map <- OpenStreetMap::autoplot.OpenStreetMap(map) +
-    ggplot2::labs(x = "Long.", y="Lat.")+
-    
+  map <- OpenStreetMap::autoplot.OpenStreetMap(map)+
+    ggplot2::theme(axis.title=ggplot2::element_blank(),
+                   axis.text=ggplot2::element_blank(),
+                   axis.ticks=ggplot2::element_blank(),
+                   panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=12))+
     # --- Add Sites:####
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
     ggplot2::geom_point(data=Sites,ggplot2::aes(x,y),col="black", pch=1,size=5)
