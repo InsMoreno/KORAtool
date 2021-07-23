@@ -46,9 +46,14 @@ KORAmap<-function(
   
   # ------------------- Import Data ####
   
-  #Import data. Table from KORA Photo saved in RStudio Project
-  table<-data.table::fread(KORA.Photo.Output,
+    if(!is.data.table(KORA.Photo.Output)){
+      table<-data.table::fread(KORA.Photo.Output,
                            select = c("animal_species","x","y", "exposure_date", "exposure_time","id_individual"))
+  }
+  
+  if(is.data.table(KORA.Photo.Output)){
+    table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual")]
+  }
   
   #Sites
   table$XY<-paste(table$x,table$y, sep=";")
