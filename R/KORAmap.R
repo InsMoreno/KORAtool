@@ -307,14 +307,14 @@ KORAmap<-function(
                           data.table::minute(Sys.time()),".jpeg",sep=""),plot=map,
                     units = "cm",
                     width = 24,
-                    height = 16)
+                    height = 20)
     
   }else{
     
     ggplot2::ggsave(paste(Name.Map,".jpeg",sep=""),plot=map,
                     units = "cm",
                     width = 24,
-                    height = 16)
+                    height = 20)
     
     
   }
