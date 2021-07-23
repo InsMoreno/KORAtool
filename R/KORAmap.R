@@ -105,8 +105,8 @@ KORAmap<-function(
   #study area BBox in lat long
   study_area_lat_long <- sp::spTransform(study_area, sp::CRS("+init=epsg:4326"))
   
-  LAT1 = study_area_lat_long@bbox[2,1] ; LAT2 = study_area_lat_long@bbox[2,2]
-  LON1 = study_area_lat_long@bbox[1,1] ; LON2 = study_area_lat_long@bbox[1,2]
+  LAT1 = study_area_lat_long@bbox[2,1]+0.2 ; LAT2 = study_area_lat_long@bbox[2,2]-0.2
+  LON1 = study_area_lat_long@bbox[1,1]-0.2 ; LON2 = study_area_lat_long@bbox[1,2]+0.2
   
   #Get the map
   #warnings OK
