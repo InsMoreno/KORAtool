@@ -131,37 +131,44 @@ KORAmap<-function(
     # --- Add Sites:####
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
     ggplot2::geom_point(data=Sites,ggplot2::aes(x,y),col="black", pch=1,size=5)
+
+  
+ # --- Add Scale: ####
+  
+  # distance on x axes:
+  dist.scale<-plyr::round_any(round(((study_area@bbox[1,2]-study_area@bbox[1,1])/1000)/4), 10, f = ceiling)
+  
+  # scale thickness:
+  s.thick<-(0.01*(study_area@bbox[2,2]-study_area@bbox[2,1]))
+  
+  # scale black rectangle
+  xleft<-study_area@bbox[1,1]+((study_area.origin[1,1]-study_area@bbox[1,1])/3)#left
+  xright<-xleft+dist.scale*1000#right
+  ybottom<-study_area.origin[2,1]-4*s.thick#bottom
+  ytop<-study_area.origin[2,1]-3*s.thick#top
+  
+  #scale white rectangle
+  #xleft.w<-xleft+(1/3)*dist.scale*1000
+  #xright.w<-xleft+(2/3)*dist.scale*1000
+
+  
+  map<-map+
+    ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
+                       fill=c("black"),
+                       inherit.aes = FALSE)+
+    ggplot2::geom_text(x=xright+(2/5)*dist.scale*1000, y=ytop, label=paste(dist.scale,"Km",sep=" "), cex=8, color ="black")
+    #ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft.w, xmax=xright.w, ymin=ybottom, ymax=ytop),
+    #                   fill=c("white"),
+    #                   inherit.aes = FALSE)+
+  
+
   # --- Add KORA GIS Logo:####
   img <- png::readPNG("KORAlogo.png")#KoraGis_transp
   g <- grid::rasterGrob(img, interpolate=TRUE)
   
   map<-map+
     ggplot2::annotation_custom(g, xmin=study_area.origin[1,2], xmax=study_area@bbox[1,2],
-                               ymin=study_area@bbox[2,1], ymax=study_area.origin[2,1])
-  
-  # --- Add Scale: ####
-  
-  # distance on x axes:
-  dist.scale<-round(((study_area@bbox[1,2]-study_area@bbox[1,1])/1000)/4)
-  
-  # scale thickness:
-  s.thick<-(0.01*(study_area@bbox[2,2]-study_area@bbox[2,1]))
-  
-  xleft<-study_area@bbox[1,1]+((study_area.origin[1,1]-study_area@bbox[1,1])/3)#left
-  xright<-xleft+dist.scale*1000#right
-  ybottom<-study_area.origin[2,1]-7*s.thick#bottom
-  ytop<-study_area.origin[2,1]-6*s.thick#top
-  
-  
-  map<-map+
-    ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
-                       fill=c("black"),
-                       inherit.aes = FALSE)+
-    ggplot2::geom_text(x=xleft+((xright-xleft)/2), y=study_area.origin[2,1]-3*s.thick, label=paste(dist.scale,"Km",sep=" "), cex=6, color ="black")
-  
-  
-  
-  
+                               ymin=study_area.origin[2,1]-7*s.thick, ymax=study_area.origin[2,1])
   # --- Add the polygons and labels: ####
   
   # -- Create Table
