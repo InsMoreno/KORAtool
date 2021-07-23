@@ -11,7 +11,8 @@
 #' @param Pattern
 #' @param Buffer.label
 #' @param Name.Map
-#' 
+#' @Red.point.ID
+#'
 #' @return
 #' @export
 #'
@@ -27,7 +28,9 @@ KORAmap<-function(
   Buffer.polygon,
   Buffer.label,
   Pattern,
-  Name.Map
+  Name.Map,
+  Red.point.ID
+  
 ){
   
   # ---------- Default values: ####
@@ -39,14 +42,14 @@ KORAmap<-function(
   if(!exists("Zoom.map")){warning("Zoom.map not provided. Default = 14"); Zoom.map<-13}
   if(!exists("Buffer.polygon")){warning("Buffer.polygon not provided. Default = 500m"); Buffer.polygon<-500}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
-
+  if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
 
   
   
   
   # ------------------- Import Data ####
   
-    if(!is.data.table(KORA.Photo.Output)){
+  if(!is.data.table(KORA.Photo.Output)){
       table<-data.table::fread(KORA.Photo.Output,
                            select = c("animal_species","x","y", "exposure_date", "exposure_time","id_individual"))
   }
@@ -286,12 +289,15 @@ KORAmap<-function(
   
   
   # --- Add points:####
-  
   map<-map+ggplot2::geom_point(data=table[table$animal_species==species,],
                                ggplot2::aes(x=x,y=y),
                                col="black", pch=19, cex=1)
   
-  
+  # --- Add points U red:####
+  map<-map+ggplot2::geom_point(data=table[table$animal_species==species &
+                                            table$id_individual==Red.point.ID,],
+                               ggplot2::aes(x=x,y=y),
+                               col="red", pch=19, cex=1)
   
   
   
