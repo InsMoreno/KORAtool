@@ -92,7 +92,7 @@ KORAmap<-function(
 
   
   study_area[1,1]<-study_area[1,1]-round(study_area[1,1]*Buffer.map) #x min
-  study_area[2,1]<-study_area[2,1]-round(study_area[2,1]*3*Buffer.map) #y min
+  study_area[2,1]<-study_area[2,1]-round(study_area[2,1]*2*Buffer.map) #y min
   study_area[1,2]<-study_area[1,2]+round(study_area[1,2]*Buffer.map) #x max
   study_area[2,2]<-study_area[2,2]+round(study_area[2,2]*Buffer.map) #y max
   
