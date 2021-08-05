@@ -44,9 +44,6 @@ KORAmapsex<-function(
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
 
-  
-  
-  
   # ------------------- Import Data ####
   
   if(!is.data.table(KORA.Photo.Output)){
