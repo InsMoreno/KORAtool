@@ -1,0 +1,1046 @@
+---
+output:
+  word_document: 
+    reference_docx: Template_KORA.docx
+editor_options: 
+  chunk_output_type: console
+params:
+  effective.TN: NULL
+  potentially.TN: NULL
+  Title: NULL
+  Language: NULL
+  Authors: NULL
+  KORAphoto: NULL
+  Lynxmaster: NULL
+  Einlesung_Luchs: NULL
+  Compartment: NULL
+  favorable: NULL
+---
+
+
+```{r Manual Data Information, echo=FALSE}
+
+# ------ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ------ #
+#     All the information which is not automatically computed, should be added here.           #
+# ------ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ------ #
+
+  #Trap night calendar information:
+
+  effective.TN = params$effective.TN 
+  potentially.TN= params$potentially.TN 
+  #Title:
+  Title= params$Title 
+  Language= params$Language 
+  #Authors: ex."Luc Le Grand, Florin Kunz, Fridolin Zimmermann"
+  Authors= params$Authors
+  #KORAphoto data csv name:
+  KORAphoto= params$KORAphoto
+  #Lynx master data csv name:
+  Lynxmaster= params$Lynxmaster
+  #Lynx Einlesung Luchs csv name:
+  Einlesung_Luchs= params$Einlesung_Luchs
+  #Compartment: 
+  #1:"Nordostschweiz"
+  #2:"Misox (Mesolcina)"
+  #3:"Tessin"
+  #4:"Surselva"
+  #5:"Zentralschweiz Ost"
+  #6:"Rhone-Nord"
+  #7:"Unterwallisüd"
+  #8:"Simme-Saane"
+  #9:"Engadin"
+  #10:"Jura Nord"
+  #11:"Jura Süd"
+  #12:"Mittelbünden"
+  #13:"Zentralschweiz West"
+  #14:"Zentralschweiz Mitte"
+  #15:"Berner Oberland Ost"
+  #16:"Oberwallis")
+  Compartment= params$Compartment
+  #Suitable habitat (km2):
+  favorable= params$favorable
+
+
+
+```
+
+
+
+
+```{r R Packages, include=FALSE}
+library(data.table)
+library(knitr)#tables
+library(pander)
+library(flextable)
+
+devtools::install_github("CrocutaLupus/KORAtool")
+library(KORAtool)
+
+# ------ Projection : ####
+#Projection to be used for the map (CH1903 / LV03):
+#Warnings OK
+suppressWarnings(CRS<- sp::CRS("+init=epsg:21781"))
+
+
+```
+
+
+```{r Import data, include=FALSE}
+
+##### Import all the raw data needed ####
+
+#KORA photo data:
+Data<-fread(KORAphoto)
+Data$TIME<-as.POSIXct(paste(Data$exposure_date,Data$exposure_time ,sep=" "), format= '%Y-%m-%d %H:%M:%S')
+
+#Lynx master data table:
+L.master<-fread(Lynxmaster)
+L.master$mother<-as.character(L.master$mother)
+L.master$yearOfBirth<-as.numeric(L.master$yearOfBirth)
+
+
+##### Data Handling: ####
+
+#Select Juveniles's year of birth (previous year):
+juv.year<-year(max(Data$TIME))-1
+
+```
+
+
+```{r kora logo, echo=FALSE}
+knitr::include_graphics("KORAlogo_frontpage.png")
+
+```
+
+<br>
+
+<br>
+
+
+
+```{r Title, results = 'asis',echo=FALSE}
+cat(paste("#",Title,sep=" "))
+```
+
+<br>
+
+```{r Authors, results = 'asis',echo=FALSE}
+cat(paste("##",Authors, sep=" "))
+```
+
+\newpage
+
+<br>
+
+<br>
+
+<br>
+
+
+```{r 2nd Page 1, results = 'asis',echo=FALSE}
+cat(paste("##",Title,sep=" "))
+```
+
+<br>
+
+<br>
+
+<br>
+
+
+**Beobarchtung Melden / Annoncé une observation:** https://www.kora.ch/
+
+<br>
+
+
+**Beobarchtungen in der Schweiz/ Observations en Suisse:**
+https://www.koracenter.ch/
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+<br>
+
+**Vorgeschlagene Zitierung/Citation proposée/Suggested citation:**
+
+
+```{r 2nd Page 2, results = 'asis',echo=FALSE}
+cat(paste(Authors,", ",year(Sys.time()),". ",Title," KORA Bericht xx, 12pp.",sep=""))
+```
+
+<br>
+
+**Digitale geografische Daten/Géodonnées/Geographic data:**
+
+All the data analyses and data processing were carried out using the statistical programming language and environment, R 4.1.0 (R Core Team, 2021). Data used for creating the map's background was extracted from the Open Street Map (https://www.openstreetmap.org/).
+
+\newpage
+
+```{r abstract number automatic, echo=FALSE}
+
+Start<-as.POSIXct(paste(Data[1,session_study_start_date],
+                          Data[1,session_study_start_time],sep=" "),
+                    format= '%Y-%m-%d %H:%M:%S')
+  
+Stop<-as.POSIXct(paste(Data[1,session_study_end_date],
+                         Data[1,session_study_end_time],sep=" "),
+                   format= '%Y-%m-%d %H:%M:%S')
+
+Sites<-length(unique(Data$site_name))
+
+#Count Lynx
+Lynx.Table<-data.table(ID=unique(Data[Data$animal_species=="Lynx lynx" &
+              Data$id_individual!="U",id_individual]))
+
+
+for(i in 1:length(Lynx.Table$ID)){
+  Lynx.Table[i,"YOB"]<-L.master[L.master$name==Lynx.Table$ID[i],yearOfBirth]
+  Lynx.Table[i,"Sex"]<-L.master[L.master$name==Lynx.Table$ID[i],sex]
+  Lynx.Table[i,"mother"]<-L.master[L.master$name==Lynx.Table$ID[i],mother]
+  Lynx.Table[i,"Flank"]<-L.master[L.master$name==Lynx.Table$ID[i],chipNo]
+}
+Lynx.Table$Flank<-as.character(Lynx.Table$Flank)
+Lynx.Table[!is.na(Lynx.Table$Flank),"Flank"]<-"B"
+Lynx.Table[grepl("B",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"B"
+Lynx.Table[grepl("R",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"R"
+Lynx.Table[grepl("L",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"L"
+
+Lynx.Table.Adult<-Lynx.Table[Lynx.Table$YOB!=juv.year | is.na(Lynx.Table$YOB),]
+
+N.ind.lynx<-length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="B",ID])+
+            max(length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="L",ID]),
+                length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="R",ID]))
+
+N.juv<-length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="B",ID])+
+            max(length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="R",ID]),
+                length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="L",ID]))
+
+#Event:
+
+## create column with ID of captured Individual, juvenile catches count as catch of the mother
+Data$ID.mummy<-Data$id_individual
+
+for(i in 1:length(Lynx.Table[Lynx.Table$YOB==juv.year,ID])){
+  if(Lynx.Table[Lynx.Table$ID==Lynx.Table[Lynx.Table$YOB==juv.year,ID][i],mother]!=""){
+    Data[Data$id_individual==Lynx.Table[Lynx.Table$YOB==juv.year,ID][i],"ID.mummy"]<-Lynx.Table[Lynx.Table$ID==Lynx.Table[Lynx.Table$YOB==juv.year,ID][i],mother]
+  } #mother not known
+}
+
+Data$ID<-Data$ID.mummy
+
+Event<-EvCountR(Table_Object=Data[!grepl(paste("U",paste(Lynx.Table[Lynx.Table$YOB==juv.year,ID],collapse="|"),sep="|"),
+                                         Data$ID) & Data$animal_species=="Lynx lynx",],Event_length=30)
+
+
+
+```
+
+
+### Abstract
+The camera traps at the `r Sites` locations operated during `r effective.TN` of the `r potentially.TN` potentially possible capture nights (`r round((effective.TN*100)/potentially.TN,2)`%). With `r Event[ID=="Total",Event]` events at `r Event[ID=="Total",4]` locations, `r N.ind.lynx` independent lynx and `r N.juv` juveniles from at least `r length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))` litters were pictured. The capture-recapture estimate of abundance (95% confidence interval) under Modelbh was 27 (24 -51) independent lynx, which corresponds to a density of 3.48 (2.16 -4.80) independent lynx per 100 km² of suitable habitat. The estimated density did not change in comparaison to the value estimated in 2014/15.
+
+### Zusammenfassung
+Die Fotofallen an den `r Sites` Standorten funktionierten während `r effective.TN` der potentiell möglichen `r potentially.TN` Fangnächte (`r round((effective.TN*100)/potentially.TN,2)`%). Bei `r Event[ID=="Total",Event]` Ereignissen wurden an `r Event[ID=="Total",4]` Standorten `r N.ind.lynx` selbständige Luchse und `r N.juv` Jungtiere aus mindestens `r length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))` Würfen fotografiert. Die Fang-Wiederfang Schätzung der Abundanz (95% Konfidenzintervall) nach dem Modellbh ergab 27 (24 -51) selbständige Luchse im Referenzgebiet, was einer Dichte von 3.48 (2.16 -4.80) selbständigen Luchsen pro 100 km² geeignetem Habitat entspricht. Die Dichte weicht nicht signifikant vom letzten geschätzten Wert im Winter 2014/15 ab.
+
+### Résumé
+Les pièges-photographiques des `r Sites` sites ont fonctionné pendant `r effective.TN` des `r potentially.TN` nuits potentielles (`r round((effective.TN*100)/potentially.TN,2)`%). Dans l’aire de référence `r Event[ID=="Total",Event]` évènements sur `r Event[ID=="Total",4]` sites correspondants à `r N.ind.lynx` lynx indépendants et `r N.juv` juvéniles de `r length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))` portées ont été détectés. L’estimation de l’abondance (intervalle de confiance de 95%) par le modèle de capture-recapture Modelbh était de 27 (24 -51) lynx indépendants ce qui correspond à une densité de 3.48 (2.16 -4.80) lynx indépendants pour 100 km² d’habitat favorable. La densité estimée n’a pas changé significativement par rapport à la valeur estimée pendant l’hiver 2014/15.
+
+\newpage
+
+### 1. Introduction
+
+Le monitoring par pièges-photos du lynx est utilisé en Suisse depuis 1998 pour déterminer la taille et la densité des populations. Le monitoring déterministe consiste à répartir des pièges-photos de manière systématique dans une zone précise et à les laisser en place pendant une période donnée. Les lynx pouvant être identifiés les uns des autres grâce aux motifs de leur pelage il est possible d'utilisé la méthode dite de capture-recapture. Grâce à cette technique, le KORA est en mesure d’estimer la taille et la densité des populations de lynx en Suisse et d’observer leur évolution en répétant régulièrement les sessions de monitoring. 
+
+Selon le Plan Lynx qui est entré en vigueur en 2016 (OFEV 2016), la Suisse est divisée en 16 sous-compartiments de gestion. A long terme, il est prévu d’établir dans chacun des sous-compartiments de gestion une aire de référence dans le but d’estimer l’abondance et la densité de lynx tous les quatre ans. Tout les monitoring qui ont eu lieu sont publié sous forme de rapport et sont disponibles dans la bibliothèque du site internet du KORA (www.KORA.ch). Ce rapport présente les résultats de la session déterministe avec les pièges-photographiques dans l'aire de référence `r unique(Data$session_ref_area)` pour l’hiver `r paste(year(min(Data$TIME)), year(max(Data$TIME)),sep="/")`.
+
+### 2. Aire de référence
+L'aire de référence de 949 km2 est délimitée par les lacs de Neuchâtel et Léman et Le Plateau au Sud-Est, La Chaux-de-Fond, Les Breuleux et Tramelan, la frontière franco-suisse et la Vallée de Joux au Nord-Ouest, les Gorges du Seyon et le Col de la Vue des Alpes au Nord-Est et le Col de la Givrine au Sud-Ouest. L’habitat favorable du lynx au sein de l’aire de référence défini par un modèle d’habitat (Zimmermann 2004) est de 776 km2.
+
+Elle a été choisie en se basant sur des limites de l’habitat (p. ex. vallées, grandes routes) de manière à être (i) de dimension comparable aux autres aires de référence et (ii) représentative de la population de lynx du Sud du Jura suisse. Les limites de l'aire de référence ont été choisies de façon à ce qu´elles correspondent aux mieux aux limites probables des domaines vitaux de lynx selon nos connaissances de la structure spatial de l´espèce. Les lynx établissent les limites de leur territoire souvent le long de barrières naturelles et artificielles tels les fonds de vallées densément peuplées ou le long de structures marquantes du relief. C'est pour cette raison que l'aire de référence déborde parfois en France dans la partie Sud du l'aire de référence.
+
+### 3. Matériel et méthode
+
+En tout, `r Sites` sites favorables pour le piégeage-photographique ont été choisis en collaborations avec les surveillants de la faune, les chasseurs et les naturalistes, principalement le long de chemins
+forestiers et pédestres. Les sites choisis ont été munis de deux pièges-photos pour une période de 60 nuits du `r as.Date(Start)` au `r as.Date(Stop)`. Ils ont été placés de part et d’autre des sentes, de sorte à photographier au moins une fois les deux flancs de chaque lynx ce qui permet une identification certaine des individus. La densité moyenne des sites est de un site pour `r round(1*(favorable/Sites),1)` km2.
+
+\newpage
+### 4. Résultats
+
+La durée d’échantillonnage potentielle était de `r potentially.TN` nuits de captures. Le vandalisme de pièges-photos, des problèmes techniques, des erreurs de manipulation et la météo ont ramené l’effort d’échantillonnage potentiel à `r effective.TN` nuits-pièges effectives, soit `r round((effective.TN*100)/potentially.TN,2)`%. Cette valeur se trouve dans la fourchette des valeurs observées dans d’autres études où nous avions des valeurs comprises entre 84,2% (Nord du
+Jura Ib, hiver 2006/07) et 99,7% (aire de référence du Nord-Ouest des Alpes, hiver 2015/16). Des lynx ont été photographiés à `r length(unique(Data[Data$animal_species=="Lynx lynx",site_name])) ` des `r Sites` sites (`r round((length(unique(Data[Data$animal_species=="Lynx lynx",site_name]))*100)/Sites,2)`%) (Fig. 2).
+
+```{r Main Map, echo = FALSE}
+KORAtool::KORAmap(KORA.Photo.Output=Data,
+  species="Lynx lynx",
+  Buffer.map=0.03,
+  Zoom.map=10,
+  IDremove="U",
+  Start=Start,
+  Stop=Stop,
+  Pattern="T",#pattern not resent but used not to block the function
+  Buffer.polygon=1000,
+  Buffer.label=2000,
+  Name.Map="Map_Report",
+  Red.point.ID="U")
+```
+
+![Fig.1 Secteurs d’activité des lynx. Disques blancs avec point noir : sites où au moins une photo de lynx a été prise ; disques blancs avec point rouge : sites où au moins une photo de lynx a été prise mais l'individu n'a pas pu être identifié avec certitude;disques blancs: pas de photo de lynx. En couleur : les secteurs d’activités des lynx (Polygone Convexe Minimum + zone tampon de 1 km).](Map_Report.jpeg)
+
+\newpage
+
+```{r Lynx Table, echo=FALSE}
+
+library(flextable)
+
+Event.report<-Event
+
+Event.report<-merge(x = Event.report, y = Lynx.Table, by="ID", all.x = TRUE)
+Event.report$Flank<-NULL
+Event.report$YOB<-as.character(Event.report$YOB)
+
+Event.report[Event.report$Sex=="unknown","Sex"]<-NA
+Event.report[Event.report$Sex=="male","Sex"]<-"M"
+Event.report[Event.report$Sex=="female","Sex"]<-"F"
+
+for(i in 1:length(unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother]))){
+  Event.report[Event.report$ID==unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother])[i],"Juv"]<-paste(
+    Lynx.Table[Lynx.Table$mother==unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother])[i] & !is.na(Lynx.Table$mother),ID],collapse=", ")
+}
+
+names(Event.report)<-c("ID","Événement","N photo","N site","Naissance","Sexe","Mère","Juvénile")
+
+#Total as last:
+bindtotal<-Event.report[Event.report$ID=="Total",]
+Event.report<-Event.report[Event.report$ID!="Total",]
+Event.report<-rbind(Event.report,bindtotal)
+
+
+# Data table into flextable to plot:
+
+Event.report<-flextable(Event.report)
+Event.report<-autofit(Event.report)
+Event.report <- set_caption(Event.report, caption = " Lynx détectés dans le cadre du monitoring du lynx dans l’aire de référence pendant les 60 nuits d’échantillonnage. Dû à leur fort taux de disparition (mortalité et dispersion) les individus juvéniles photographiés au cours des deux mois d’échantillonnage sont identifiés mais considérés comme une capture de leur mère (Zimmermann et al. 2007). Un évenement comprends toutes les images  à un site donné séparées de moins de 30 minutes. Le nombre total de sites où un lynx a été observé est plus petit que la somme des sites, car certains sites sont les mêmes.")
+
+Event.report<-font(Event.report,fontname = "Calibri", part = "all")
+Event.report<-fontsize(Event.report,size = 12, part = "body")
+Event.report<-height_all(Event.report, height = .26)
+Event.report<- hrule(Event.report, rule = "exact")
+
+# --- Add footnote:
+
+#Texte juvéniles sans mère:
+txt.juv<-"Juvénile sans mère connue: "
+
+if(length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID])>0){
+ for(i in 1:length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID])){
+  
+ txt.juv<- paste(txt.juv,
+    Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID][i]," (N photo = ",
+      length(Data[Data$id_individual==Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID][i],file_name]),
+    ") ",sep="")
+
+  } 
+}else{
+  
+txt.juv<-"Tous les juvéniles photographiés ont pu être associé à leur mère."
+
+}
+
+
+#Create footnote:
+Event.report<- footnote( Event.report, i = 1,j=c(1,3),
+            value = as_paragraph(
+                      c(txt.juv,
+                        "N photo: Si plusieurs individus sont pris sur une même photo, cette photo est comptée le même nombre de fois qu'il y a d'individu.")),
+            ref_symbols = c("1", "2"),
+            part = "header")
+
+#
+Event.report
+
+```
+
+\newpage
+
+#### 4.1 Observations opportunistes durant cette session déterministe
+
+Le KORA prends note de toutes les observations de grands carnivores qui lui sont transmises. Ces observations, nous permettent de suivre les populations de lynx également hors des sessions déterministes que nous effectuons. Les observations transmises qui ont lieu pendant la session détermisite apportent également des informations supplémentaires.
+
+```{r Opp Mon, echo=FALSE}
+
+# Import Google sheet data
+Data.opp<-fread(Einlesung_Luchs,select=(c("Case","date","type","x","y","lynx_ID","canton","entry_date","receipt_date")))
+Data.opp$date<-as.POSIXct(Data.opp$date,  format= '%Y-%m-%d %H:%M:%S' )
+
+#Subset data Session window
+Data.opp<-Data.opp[Data.opp$date>Start & Data.opp$date<Stop,]
+
+#Observations as spatial points
+pts <- sf::st_as_sf(Data.opp, coords = c("x","y"))
+pts<-sf::st_set_crs(pts, 21781) 
+
+#Import shapefile compartment
+Komp <- sf::read_sf(dsn = "MAP_Data/Luchs_Komp_21_07_2015_new.shp")
+
+#Subset observation within the compartment
+#Warnings ok
+suppressWarnings(pts<-sf::st_intersection(pts,Komp$geometry[Compartment]))
+
+# -- Study Area ####
+
+study_area<-sp::bbox(as.matrix(Komp$geometry[Compartment][[1]]))
+  
+study_area<-rgeos::readWKT(paste("POLYGON((",
+                                   study_area[1,1]," ",study_area[2,1],",",
+                                   study_area[1,1]," ",study_area[2,2],",",
+                                   study_area[1,2]," ",study_area[2,2],",",
+                                   study_area[1,2]," ",study_area[2,1],",",
+                                   study_area[1,1]," ",study_area[2,1],"))",sep=""),p4s= CRS)
+
+
+# -- Altitude layer ####
+Alt <- raster::raster("MAP_Data/CHHS.TIF")
+# indicate CRS
+raster::crs(Alt) <- CRS 
+
+# crop 
+Alt<-raster::crop(Alt,study_area)
+
+# convert to a df for plotting in two steps:
+# First, to a SpatialPointsDataFrame
+Alt_pts <- raster::rasterToPoints(Alt, spatial = TRUE)
+# Then to a 'conventional' dataframe
+Alt_df  <- data.frame(Alt_pts)
+rm(Alt_pts, Alt)
+
+# -- Import shapefile lakes
+suppressWarnings(Lakes <- raster::shapefile("MAP_Data/grandlacs.shp"))
+Lakes<-raster::crop(Lakes,study_area)
+Lakes<-sf::st_as_sf(Lakes)
+
+# -- Plot function
+
+Plot_KORA_Report<-function(Species,Opp){
+  
+  map<-ggplot2::ggplot() +
+  #Alt Raster
+  ggplot2::geom_raster(data = Alt_df , ggplot2::aes(x = x, y = y, alpha = CHHS))+
+  ggplot2::scale_alpha(name = "", range = c(0.6, 0))+
+  #Polygon Compartment
+  ggplot2::geom_sf(data=Komp$geometry[Compartment],fill="white", alpha = 0.4)+
+  #Lakes
+  ggplot2::geom_sf(data=Lakes,fill="#56B4E9")
+  
+  #Points Sites
+  if(Opp==TRUE){
+  map<-map+ggplot2::geom_point(data=Data,ggplot2::aes(x,y), col="white", pch=19,size=5)+
+        ggplot2::geom_point(data=Data,ggplot2::aes(x,y),col="black", pch=1,size=5)
+  }else{
+   map<-map+ggplot2::geom_point(data=Data,ggplot2::aes(x,y), col="white", pch=19,cex=1)+
+      ggplot2::geom_point(data=Data,ggplot2::aes(x,y),col="black", pch=1,cex=1)
+  }
+    
+    
+  #Points Sites with Species
+  map<-map+ggplot2::geom_point(data=Data[Data$animal_species==Species & 
+                                  Data$TIME>=Start &
+                                  Data$TIME<=Stop,],
+                               ggplot2::aes(x=x,y=y),
+                               col="black", pch=19, cex=1)
+  
+  #Points Opp. Mon
+  if(Opp==TRUE){
+  map<-map+ggplot2::geom_sf(data=pts,col="#E69F00", pch=17,size=3)
+  }
+  
+  #Theme
+  map<-map+ggplot2::theme(plot.title =ggplot2::element_blank(),
+        strip.background = ggplot2::element_blank(),
+        panel.background= ggplot2::element_rect(fill = "white",color="black"),
+        panel.grid = ggplot2::element_line(colour = "white"),
+        axis.title =ggplot2::element_blank(),
+        axis.text = ggplot2::element_blank(),
+        axis.ticks= ggplot2::element_blank(),
+        legend.position="none",
+        panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1.5))
+  
+  map
+  
+}
+
+
+Plot.Opp.Mon<-Plot_KORA_Report("Lynx lynx",Opp=TRUE)
+
+ggplot2::ggsave("Plot_Opp_Mon.jpeg",plot=Plot.Opp.Mon,
+                    units = "cm",
+                    width = 16.5,
+                    height = 16.5)
+
+
+```
+
+![Fig. 3 Monitoring opportuniste: Les triangles oranges représentes les observations opportunistes qui ont eu lieu pendant la période du monitoring et qui ont été transmises au KORA. Disques blancs avec point noir : sites où au moins une photo de lynx a été prise ; disques blancs: pas de photo de lynx. La ligne rouge délimite le compartiment. ](Plot_Opp_Mon.jpeg)
+
+\newpage
+
+#### 4.2 Estimation du nombre de lynx
+Dans l’aire de référence `r Event[ID=="Total",Event]` évènements sur `r Event[ID=="Total",4]` sites correspondants à `r N.ind.lynx` lynx indépendants et `r N.juv` juvéniles de `r length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))` portées ont été détectés. L'estimation du nombre de lynx est présentée au tableau 2. Les lynx observés de manière fortuite pendant la prériode du monitoring sont présenté au tableau 3.
+
+```{r Occasion Tables, echo=FALSE}
+# Create table occasion:
+Occ.table<-data.table(ID=unique(Lynx.Table.Adult$ID))
+
+
+# To carry the analyses of the lynx monitoring, we test periods of 3 days and periods of 5 days
+
+for(Period in c(3,5)){
+  
+# ---- Create Empty Occurrence Matrix  
+occasions<-seq(from = Start,to = Stop, by = paste(Period,"days", sep=" "))
+Occ.table<-data.table::data.table(ID = unique(Lynx.Table.Adult$ID))
+if(Period==3){
+  Occ.table[,c(as.character(occasions[-21])):= 0]
+}
+if(Period==5){
+  Occ.table[,c(as.character(occasions[-13])):= 0]
+}
+
+# ---- Fill in Matrix (observation of juvenile counts as an observation of the mother)
+for(i in 1:length(Occ.table$ID)){
+  for(j in 2:ncol(Occ.table)){
+    Data_loop<- Data[Data$TIME > as.POSIXct(names(Occ.table)[j])  &
+                         Data$TIME < as.POSIXct(names(Occ.table)[j]) + Period*86400 & #select days occasion
+                         Data$ID.mummy == Occ.table[i,ID],c("TIME","file_name")]
+    if(length(Data_loop$file_name)!=0){
+      Occ.table[i,j]<-1
+    }else{Occ.table[i,j]<-0}
+  }
+}
+
+# ---- Check if an individual has no single catch within the study period (60nights)
+for(i in 1:length(Occ.table$ID)){
+  if(sum(Occ.table[1,2:ncol(Occ.table)])==0){
+    warning("warning: ID has not been seen during the 60 days.")
+  }
+}
+
+
+# ---- Occ.table for Plot cumulative (2 table, one per period length)
+
+if(Period==3){
+Occ.table.3<-Occ.table
+Occ.table.plot.3<-dcast(melt(Occ.table, id.vars = "ID"), variable ~ ID)
+names(Occ.table.plot.3)[1]<-"TIME"
+#number of captures per occasion
+Occ.table.plot.3$SUM.occasion<-rowSums(Occ.table.plot.3[,-1])
+#cumulative number of captures per occasion
+Occ.table.plot.3$SUM.occasion.cumulative<-cumsum(Occ.table.plot.3$SUM.occasion)
+}
+
+if(Period==5){
+Occ.table.5<-Occ.table
+Occ.table.plot.5<-dcast(melt(Occ.table, id.vars = "ID"), variable ~ ID)
+names(Occ.table.plot.5)[1]<-"TIME"
+#number of captures per occasion
+Occ.table.plot.5$SUM.occasion<-rowSums(Occ.table.plot.5[,-1])
+#cumulative number of captures per occasion
+Occ.table.plot.5$SUM.occasion.cumulative<-cumsum(Occ.table.plot.5$SUM.occasion)
+}
+
+
+}
+
+```
+
+```{r closure analyses, echo=FALSE}
+
+# ---- Closed Test:
+
+for(Period in c(3,5)){
+  
+#Create table Sites info + read trap
+Lynx_trapXY<-unique(Data[,c("site_name","x","y")])
+names(Lynx_trapXY)[1]<-"trapID"
+traps.lynx <- secr::read.traps(data = Lynx_trapXY)
+
+#Create table observation info
+Lynx_captXY<-data.table(Session=1,
+                        ID=rep(Lynx.Table.Adult$ID,each=(60/Period)*length(Lynx_trapXY$trapID)),
+                        Occasion=rep(rep(1:(60/Period),each=length(Lynx_trapXY$trapID)),length(Lynx.Table.Adult$ID)),
+                        X=rep(Lynx_trapXY$x),
+                        X=rep(Lynx_trapXY$y),
+                        TrapID=rep(Lynx_trapXY$trapID),
+                        Seen="NO")
+
+
+for(i in 1:length(Lynx_captXY$Session)){
+  Data_loop<- Data[Data$TIME > as.POSIXct(names(Occ.table)[Lynx_captXY[i,Occasion]+1])  &
+                         Data$TIME < as.POSIXct(names(Occ.table)[Lynx_captXY[i,Occasion]+1]) + Period*86400 & #select days occasion
+                         Data$ID.mummy == Lynx_captXY[i,ID] &
+                         Data$site_name== Lynx_captXY[i,TrapID],c("TIME","file_name")]
+  
+  if(length(Data_loop$file_name)>0){
+    Lynx_captXY[i,"Seen"]<-"YES"
+  }
+}
+
+Lynx_captXY<-Lynx_captXY[Lynx_captXY$Seen=="YES",-c("TrapID","Seen")]
+
+
+
+# --- Closure Test
+
+if(Period==3){
+  #Create capthist 
+  suppressWarnings(Lynx.CHxy.3  <- secr::make.capthist (Lynx_captXY, traps.lynx, fmt = "XY"))
+  #warnings OK it produces the same results as in the program
+  closure.result.3<-secr::closure.test(Lynx.CHxy.3,SB=TRUE)
+}
+
+if(Period==5){
+  #Create capthist 
+  suppressWarnings(Lynx.CHxy.5  <- secr::make.capthist (Lynx_captXY, traps.lynx, fmt = "XY"))
+  #warnings OK it produces the same results as in the program
+  closure.result.5<-secr::closure.test(Lynx.CHxy.5,SB=TRUE)
+}
+
+}
+
+```
+
+```{r Mark analyses, echo= FALSE, message=FALSE, results='hide', warning=FALSE}
+
+# ----------------------------- !!!!!----------------------------------------- #
+# It is assumed that MARK.EXE is located in directory "C:/Program Files/Mark". #
+# https://cran.r-project.org/web/packages/RMark/RMark.pdf                      #
+# ----------------------------- !!!!!----------------------------------------- #
+
+
+
+#Capture History Period=3:
+CaptHist.table.3<-data.table(ID=Occ.table.3$ID)
+for( i in 1:length(Occ.table.3$ID)){
+CaptHist.table.3[i,"ch"]<-paste(as.numeric(Occ.table.3[i,2:length(Occ.table.3)]),collapse = "")
+}
+
+#Capture History Period=5:
+CaptHist.table.5<-data.table(ID=Occ.table.5$ID)
+for( i in 1:length(Occ.table.5$ID)){
+CaptHist.table.5[i,"ch"]<-paste(as.numeric(Occ.table.5[i,2:length(Occ.table.5)]),collapse = "")
+}
+
+#R MArk Analzses function
+lynx.Mark.models=function(CaptHist.table)
+{
+  #
+  # Define parameter models
+  #
+  pdotshared=list(formula=~1,share=TRUE)
+  ptimeshared=list(formula=~time,share=TRUE)
+  pmixture=list(formula=~mixture)
+  #
+  # Run assortment of models
+  #
+  #
+  # Capture Closed models
+  #
+  # M0: constant p=c
+  Lynx.m0=RMark::mark(CaptHist.table,model="Closed",
+                    model.parameters=list(p=pdotshared))
+
+  # Mt: Variation accross occasions. time varying p=c
+  Lynx.mt=RMark::mark(CaptHist.table,model="Closed",
+                    model.parameters=list(p=ptimeshared))
+  # Mh: Variation among individuals
+  Lynx.Mh=RMark::mark(CaptHist.table,model="HetClosed",
+                     model.parameters=list(p=pmixture))
+  
+  # Return model table and list of models
+  #
+  return(RMark::collect.models() )
+}
+
+
+# fit models in mark by calling function created above
+#
+
+Lynx.Mark.results.3<-lynx.Mark.models(CaptHist.table.3)
+
+
+Lynx.Mark.results.5<-lynx.Mark.models(CaptHist.table.5)
+
+
+#Select best model:
+# Create Mark Table:
+Mark.Table<-data.table(Period=rep(c(3,5),each=3),
+                       Model=c("M0","Mt","Mh"),
+                       AICc=0,
+                       N=0,
+                       Min=0,
+                       Max=0)
+
+
+# Add AICc to MArk.Table 
+#(to get same value as in Mark programm, unadjusted for Mt and Mh, ex. Lynx.Mark.results.3$Lynx.Mh$results$AICc.unadjusted)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="M0","AICc"]<-round(Lynx.Mark.results.3$Lynx.m0$results$AICc,2)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mt","AICc"]<-round(Lynx.Mark.results.3$Lynx.mt$results$AICc,2)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mh","AICc"]<-round(Lynx.Mark.results.3$Lynx.Mh$results$AICc,2)
+
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="M0","AICc"]<-round(Lynx.Mark.results.5$Lynx.m0$results$AICc,2)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mt","AICc"]<-round(Lynx.Mark.results.5$Lynx.mt$results$AICc,2)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mh","AICc"]<-round(Lynx.Mark.results.5$Lynx.Mh$results$AICc,2)
+
+# Estimation N lynx
+closedN.3<-secr::closedN(Lynx.CHxy.3, estimator = c("null","darroch","jackknife"),
+                       level = 0.95, maxN = 1e+07, dmax = 10 )
+
+closedN.5<-secr::closedN(Lynx.CHxy.5, estimator = c("null","darroch","jackknife"),
+                       level = 0.95, maxN = 1e+07, dmax = 10 )
+
+# Add info in Mark.Table Period = 3
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="M0","N"]<-round(closedN.3$Nhat[1],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mt","N"]<-round(closedN.3$Nhat[2],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mh","N"]<-round(closedN.3$Nhat[3],0)
+
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="M0","Min"]<-round(closedN.3$lclNhat[1],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mt","Min"]<-round(closedN.3$lclNhat[2],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mh","Min"]<-round(closedN.3$lclNhat[3],0)
+
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="M0","Max"]<-round(closedN.3$uclNhat[1],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mt","Max"]<-round(closedN.3$uclNhat[2],0)
+Mark.Table[Mark.Table$Period==3 & Mark.Table$Model=="Mh","Max"]<-round(closedN.3$uclNhat[3],0)
+
+# Add info in Mark.Table Period = 5
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="M0","N"]<-round(closedN.5$Nhat[1],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mt","N"]<-round(closedN.5$Nhat[2],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mh","N"]<-round(closedN.5$Nhat[3],0)
+
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="M0","Min"]<-round(closedN.5$lclNhat[1],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mt","Min"]<-round(closedN.5$lclNhat[2],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mh","Min"]<-round(closedN.5$lclNhat[3],0)
+
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="M0","Max"]<-round(closedN.5$uclNhat[1],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mt","Max"]<-round(closedN.5$uclNhat[2],0)
+Mark.Table[Mark.Table$Period==5 & Mark.Table$Model=="Mh","Max"]<-round(closedN.5$uclNhat[3],0)
+
+Mark.Table$IC<-paste(Mark.Table$Min,Mark.Table$Max,sep="-")
+Mark.Table$Min<-NULL
+Mark.Table$Max<-NULL
+
+#Mark.Table as a felxtable
+Mark.Table<-flextable(Mark.Table)
+Mark.Table <- set_caption(Mark.Table, caption = " Selection du meilleure modèle et estimation du nombre de lynx.")
+Mark.Table<-font(Mark.Table,fontname = "Calibri", part = "all")
+Mark.Table<-fontsize(Mark.Table,size = 12, part = "body")
+
+
+#In Bold the Best model
+Mark.Table <- bold(Mark.Table, bold = TRUE, i=3)
+
+
+which.best.model.3<-which(Mark.Table$body$dataset$AICc== min(Mark.Table$body$dataset[Mark.Table$body$dataset$Period==3,"AICc"]))
+which.best.model.5<-which(Mark.Table$body$dataset$AICc== min(Mark.Table$body$dataset[Mark.Table$body$dataset$Period==5,"AICc"]))
+
+
+Mark.Table <- bold(Mark.Table, bold = TRUE, i=c(which.best.model.3,which.best.model.5))
+
+#Change name to fit language
+Mark.Table <- set_header_labels(Mark.Table,
+                        values = list(Period = "Période",
+                                      Model = "Modèle",
+                                      AICc = "AICc",
+                                      N = "N lynx",
+                                      IC = "IC 95%"))
+
+#Create footnote:
+
+if(Language=="FR"){
+ Mark.Table<- footnote( Mark.Table, i =1 ,j=2,part = "header",
+            value = as_paragraph("M0: Probabilité d'observation constante
+Mt: Probabilité varie dans le temps
+Mh: Probabilité varie entre individus"),ref_symbols = c(""))
+
+}
+
+#Autofit (last to make sur it works)
+Mark.Table<-autofit(Mark.Table)
+Mark.Table<-height_all(Mark.Table, height = .26)
+Mark.Table<- hrule(Mark.Table, rule = "exact")
+Mark.Table <- hline(Mark.Table, i=3)
+
+```
+
+```{r output Mark.Table, echo=FALSE}
+Mark.Table
+```
+
+```{r table Opp. mon,echo=FALSE}
+
+#Sort data Opp. Mon. based on object pts (created above in "r Opp Mon")
+pts<-as.data.table(pts)
+pts<-pts[,c("Case","date","type","lynx_ID","canton")]
+pts$Case<-as.character(pts$Case)
+
+
+Opp.table<-data.table(ID=sort(unique(pts$lynx_ID)))
+
+if(length(Opp.table$ID)>0){
+  for(i in 1:length(Opp.table$ID)){
+    Opp.table[i,"Event"]<-length(unique(pts[pts$lynx_ID==Opp.table[i,ID],Case]))
+    Opp.table[i,"Min.date"]<-min(pts[pts$lynx_ID==Opp.table[i,ID],date])
+    Opp.table[i,"Max.date"]<-max(pts[pts$lynx_ID==Opp.table[i,ID],date])
+    Opp.table[i,"Canton"]<-paste(unique(pts[pts$lynx_ID==Opp.table[i,ID],canton]),collapse=", ")
+  }
+}else{warning("No opp. mon. observations")}
+
+Opp.table$Max.date<-as.character(Opp.table$Max.date)
+Opp.table$Min.date<-as.character(Opp.table$Min.date)
+
+#Any lynx not seen in det. mon. but seen in opp. mon:
+Opp.table$line<-1:length(Opp.table$ID)
+Not.seen<-Opp.table[!grepl(paste(unique(Data[Data$animal_species=="Lynx lynx" & Data$TIME>Start & Data$TIME<Stop,id_individual]), collapse="|"),
+      Opp.table$ID),which = FALSE]
+Opp.table$line<-NULL
+
+
+#Change name to fit language
+names(Opp.table)<-c("ID","Événement","Date min.","Date max.","Canton")
+
+#Transform data.table into flextable with legend and font
+Opp.table<-flextable(Opp.table)
+Opp.table<-autofit(Opp.table)
+Opp.table <- set_caption(Opp.table, caption = " Observations opportunistes qui ont eu lieu pendant la période du monitoring et qui ont été transmises au KORA. Un événement peut être représenté par plusieurs images prise au même endroit et même moment.")
+Opp.table<-font(Opp.table,fontname = "Calibri", part = "all")
+Opp.table<-fontsize(Opp.table,size = 12, part = "body")
+Opp.table<-height_all(Opp.table, height = .26)
+Opp.table<- hrule(Opp.table, rule = "exact")
+Opp.table <- bold(Opp.table, bold = TRUE, i=Not.seen[,line])
+
+#Create footnote:
+if(length(Not.seen)>0){
+  Opp.table<- footnote( Opp.table, i = Not.seen[,line],j=1,
+            value = as_paragraph("Les lynx observés de manière opportuniste mais pas observés dans le cadre de la session déterministe sont en gras."),ref_symbols = c("1"))
+}
+
+#Call table
+Opp.table
+
+
+
+```
+
+\newpage
+
+```{r Plot cumulative, echo=FALSE}
+
+jpeg(filename = "Plot_cumulative.jpeg", width = 16.5, height = 8,
+     units = "cm", quality = 100, bg = "white", res=100)
+
+par(mfrow=c(1,2))
+
+
+par(mar=c(4,3,1,0))
+  plot(Occ.table.plot.3$SUM.occasion, type="o", 
+     xlab=NA,ylab=NA,col="blue",
+     xaxt='n',las=1,cex.lab=0.8,cex.axis=0.8,pch=19,cex=1.5,lwd=1.5,
+     xlim=c(1,20),
+     #ylim based on period 5 in case higher:
+     ylim=c(0,10^ceiling(log10(max(Occ.table.plot.5$SUM.occasion.cumulative))))) 
+  axis(side=1,at=c(1,5,10,15,20),labels = c(1,5,10,15,20),cex.axis=0.8)
+  mtext(side=1,"Occasions", line= 2,cex=0.8)
+  mtext(side=2,"Captures", line= 2,cex=0.8)
+  par(new=TRUE)
+  plot(Occ.table.plot.3$SUM.occasion.cumulative, type="o", 
+     xlab = NA,ylab=NA,pch=17,
+     axes=FALSE,lwd=1.5,cex=1.5,
+     xlim=c(1,20),ylim=c(0,10^ceiling(log10(max(Occ.table.plot.5$SUM.occasion.cumulative)))))
+  legend("topleft",paste("Closure Test: Otis et al. (1978), p=",round(closure.result.3$Otis$p,3),
+"
+Occasion = 3 jours
+"),cex=0.6)
+
+par(mar=c(4,0.5,1,0.5))
+  plot(Occ.table.plot.5$SUM.occasion, type="o", 
+     xlab=NA,ylab="Captures",col="blue",
+     xaxt='n',las=1,cex.lab=0.8,cex.axis=0.8,pch=19,cex=1.5,lwd=1.5,
+     axes=FALSE,
+     xlim=c(1,12),ylim=c(0,10^ceiling(log10(max(Occ.table.plot.5$SUM.occasion.cumulative)))))
+  box()
+  axis(side=1,at=c(1:12),labels = c(1:12),cex.axis=0.8)
+  mtext(side=1,"Occasions", line= 2,cex=0.8)
+  par(new=TRUE)
+  plot(Occ.table.plot.5$SUM.occasion.cumulative, type="o", 
+     xlab = NA,ylab=NA,pch=17,
+     axes=FALSE,lwd=1.5,cex=1.5,
+     xlim=c(1,12),ylim=c(0,10^ceiling(log10(max(Occ.table.plot.5$SUM.occasion.cumulative)))))
+  legend("topleft",paste("Closure Test: Otis et al. (1978), p=",round(closure.result.5$Otis$p,3),
+"
+Occasion = 5 jours
+"),cex=0.6)
+
+
+invisible(dev.off())
+```
+
+![Fig. 4 Evolution du nombre de captures de lynx cumulé et du nombre de lynx détecté au cours des 20 triades de capture dans l’aire de référence. Le  nombre  de  captures  cumulées  augmente  constamment avec le  nombre  de  triades.  Cela  indique  que  les  lynx  n’évitent  pas  les  pièges-photos  après  la première capture.](Plot_cumulative.jpeg)
+
+\newpage
+
+```{r Density comparaison Table, echo= FALSE}
+
+History<-as.matrix(fread("Density_KORA_Historic_Values.csv",header = TRUE))
+
+Komp.DE<-c("Nordostschweiz","Misox (Mesolcina)","Tessin","Surselva","Zentralschweiz Ost","Rhone-Nord","Unterwallisüd","Simme-Saane","Engadin","Jura Nord","Jura Süd","Mittelbünden", "Zentralschweiz West","Zentralschweiz Mitte","Berner Oberland Ost","Oberwallis")
+
+Komp.FR<-c("Nord-Est de la Suisse","Misox (Mesolcina)","Tessin","Surselva","Est de la Suisse centrale","Nord du Rhône","Sud du Bas-Valais", "Simme-Saane", "Engadin", "Nord du Jura","Sud du Jura", "Centre des Grisons","Ouest de la Suisse centrale", "Centre de la Suisse centrale","l'Est de l'Oberland-Bernois","Haute-Valais")
+
+History.comparaison<-data.table(Compartment=Komp.FR)
+History.comparaison$COMPID<-c("II","Vb","Va","Vc","IIIc","IVc","IVd","IVa","Ve","Ib","Ia","Vd","IIIa","IIIb","IVb","IVe")
+
+for(i in 1:length(History.comparaison$Compartment)){
+  
+  list.comp<-tail(as.character(na.omit(History[,i+1])),n=1)
+  if(length(list.comp)>0){
+  History.comparaison[i,"Winter"]<-History[which(History == list.comp, arr.ind=T)[,"row"],1]
+  History.comparaison[i,"Density"]<-as.numeric(substr(list.comp, 1, 4))
+  History.comparaison[i,"IC95"]<-paste("(",as.numeric(substr(list.comp, 7, 10)),"-",as.numeric(substr(list.comp, 12, 15)),")",sep="")
+  
+  }else{History.comparaison[i,"Winter"]<-"Aucun monitoring"}
+
+}
+
+#Set order COMPID (alphabetic order does not work->manual)
+History.comparaison<-History.comparaison[c(11,10,1,13,14,5,8,15,6,7,16,3,2,4,12,9),]
+
+#Set name columns (FR/DE)
+names(History.comparaison)<-c("Compartiment","ID Comp.","Hiver","Densité","IC 95% ")
+
+#Transform data.table into flextable with legend and font
+History.comparaison<-flextable(History.comparaison)
+History.comparaison<-autofit(History.comparaison)
+History.comparaison <- set_caption(History.comparaison, caption = " Densités estimées de lynx indépendants pour 100 km2 d’habitat favorable des dernières sessions pour les 16 aires de référence officiel. Pour certaines aires de référence il n'y a jamais eu de monitoring déterministe. Les compartiments sont présentés à la Fig.6.")
+History.comparaison<-font(History.comparaison,fontname = "Calibri", part = "all")
+History.comparaison<-fontsize(History.comparaison,size = 12, part = "body")
+History.comparaison<-height_all(History.comparaison, height = .27)
+History.comparaison<- hrule(History.comparaison, rule = "exact")
+
+#Create footnote:
+History.comparaison<- footnote( History.comparaison, i = c(10,11),j=5,
+            value = as_paragraph("Dans ces compartiments, le nombre de lynx observé était trop faible pour calculer une densité avec une intervalle de confiance."),ref_symbols = c("1"))
+
+
+#Call table
+History.comparaison
+```
+
+```{r History + Map Compartment, echo=FALSE}
+
+#History Table
+
+History<-fread("Density_KORA_Historic_Values.csv",header = TRUE,select=c("Year",as.character(Compartment)))
+
+History<-na.omit(History,cols = as.character(Compartment))
+
+for(i in 1:length(History$Year)){
+  History[i,"Density"]<-as.numeric(substr(as.character((History[i,2])), 1, 4))
+  History[i,"Min95"]<-as.numeric(substr(as.character((History[i,2])), 7, 10))
+  History[i,"Max95"]<-as.numeric(substr(as.character((History[i,2])), 12, 15))
+}
+
+# Add current Monitoring values to history plot:
+History[,2]<-NULL
+Current<-data.table(Year=paste(min(year(occasions)),max(year(occasions)),sep="/"),
+                    Density=round((Mark.Table$body$dataset[which.best.model.3,"N"]/favorable)*100,2),
+                    Min95=round((as.numeric(substr(Mark.Table$body$dataset[which.best.model.3,"IC"], 1, 2))/favorable)*100,2),
+                    Max95=round((as.numeric(substr(Mark.Table$body$dataset[which.best.model.3,"IC"], 4, 5))/favorable)*100,2))
+ 
+History<-rbind(History,Current)
+
+
+
+# Error bar
+History.plot<-ggplot2::ggplot(History) +
+              ggplot2::geom_bar( ggplot2::aes(x=Year, y=Density), stat="identity",
+                                 fill=c(rep("#009E73",length(History$Year)-1),"#E69F00"),
+                                 alpha=0.7) +
+              ggplot2::geom_errorbar( ggplot2::aes(x=Year, ymin=Min95, ymax=Max95),
+                                      width=0.4, colour="black", alpha=0.9, size=1.3)+ggplot2::theme_bw()+
+              ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45,hjust = 1),
+                             axis.title.x=ggplot2::element_blank())+
+              ggplot2::geom_text(ggplot2::aes(y = 0,x=1:length(History$Year)),
+                                              label=paste(History$Density," (",History$Min95,"-",History$Max95,")",sep=""),
+                                              vjust = 0, nudge_y = .2,size=1)
+
+
+#Side by side with Compartment map
+
+img <- jpeg::readJPEG("Kompartimente_Luchs_31_07_2015_small.jpg")
+g <- grid::rasterGrob(img, interpolate=TRUE)
+
+map.compartment<-ggplot2::qplot() +
+                  ggplot2::annotation_custom(g, xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf)+
+                  ggplot2::theme_bw()
+
+
+History.plot.map<-cowplot::plot_grid(map.compartment, History.plot,
+                   labels=c("A", "B"), label_size = 12,
+                   ncol = 2, nrow = 1)
+
+ggplot2::ggsave("History_denisty_plot.jpeg",plot=History.plot.map,
+                    units = "cm",
+                    width = 16.5,
+                    height = 6.1)
+```
+
+```{r Compartment CH,echo=FALSE, fig.cap="Fig.5 A: Sous compartiments de gestion pour le suivi du lynx en Suisse basé sur le Plan Lynx de 2016 (OFEV 2016). B: Evolution des densités de lynx par superficie d’habitat favorable."}
+knitr::include_graphics("History_denisty_plot.jpeg")
+```
+
+\newpage
+
+#### 4.3 Autres grands prédateurs photographiés lors de cette session
+
+D'autres espèces ont été photographiés au cours de cette session. Nous présentons les cartes pour le chat sauvage (*Felis silvestris*), le loup (*Canis lupus*) ainsi que le chacal doré (*Canis aureus*) (Fig.5). Il est important de souligner que
+l’emplacement des sites a été choisi en premier lieu pour optimiser la détection des lynx. Les cartes sont donc présentées à but informatives mais ne permettent pas de tirer de conclusions directes sur la présencance ou l'absance d'une autre espèce.
+
+```{r Other Species Map, echo=FALSE}
+
+Plot.felis.silvestris<-Plot_KORA_Report("Felis silvestris",Opp=FALSE)
+Plot.Canis.lupus<-Plot_KORA_Report("Canis lupus",Opp=FALSE)
+Plot.Lynx.lynx<-Plot_KORA_Report("Lynx lynx",Opp=FALSE)
+Plot.Canis.aureus<-Plot_KORA_Report("Canis aureus",Opp=FALSE)
+
+Plot.other.species<-cowplot::plot_grid(Plot.felis.silvestris, Plot.Canis.lupus,
+                   Plot.Lynx.lynx,Plot.Canis.aureus, 
+                   labels=c("A", "B","C","D"), label_size = 12,
+                   ncol = 2, nrow = 2)
+
+
+ggplot2::ggsave("Plot_Other_Species.jpeg",plot=Plot.other.species,
+                    units = "cm",
+                    width = 18,
+                    height = 16.5)
+
+
+
+```
+![Fig. 7 Autres grands prédateurs photographiés lors de cette session. A: *Felis silvestris*, B: *Canis lupus*, C: *Lynx lynx*, D: *Canis aureus*. Disques blancs avec point noir : sites où au moins une photo de l'espèce a été prise ; disques blancs: pas de photo de l'espèce.](Plot_Other_Species.jpeg)
+
+\newpage
+### Discussion
+
+### Remerciments
+Nous remercions vivement tous ceux qui d’une manière ou d’une autre nous ont aidé et
+soutenu. Nous remercions en particulier :
+
+### Références
+
+
+
