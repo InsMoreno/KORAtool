@@ -71,7 +71,7 @@ KORAmapsex<-function(
                  table$TIME<as.POSIXct(Stop,format= "%Y-%m-%d %H:%M:%S"),]
   
   #Keep only used variables
-  table<-table[,c("animal_species","XY","x","y","TIME","id_individual")]
+  table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex")]
   
   
   # ------------------- Map ####
