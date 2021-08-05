@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples
-KORAmap<-function(
+KORAmapsex<-function(
   KORA.Photo.Output,
   species,
   Buffer.map,
