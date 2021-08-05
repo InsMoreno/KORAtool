@@ -25,7 +25,6 @@ KORAmapsex<-function(
   IDremove,
   Start,
   Stop,
-  Buffer.polygon,
   Buffer.label,
   Pattern,
   Name.Map,
@@ -40,7 +39,6 @@ KORAmapsex<-function(
   if(!exists("Start")){warning("Start date not provided")}
   if(!exists("Stop")){warning("Stop date not provided")}
   if(!exists("Zoom.map")){warning("Zoom.map not provided. Default = 14"); Zoom.map<-13}
-  if(!exists("Buffer.polygon")){warning("Buffer.polygon not provided. Default = 500m"); Buffer.polygon<-500}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
 
@@ -186,10 +184,10 @@ KORAmapsex<-function(
   
   #All black as default
   ID.names$col<-"#000000"
-  #Males in orange
-  ID.names[ID.names$Sex=="male","col"]<-"#E69F00"
-  #Females in blue
-  ID.names[ID.names$Sex=="female","col"]<-"#0072B2"
+  #Males in blue
+  ID.names[ID.names$Sex=="male","col"]<-"#0072B2"
+  #Females in pink
+  ID.names[ID.names$Sex=="female","col"]<-"#CC79A7"
   
   names(ID.names)[1]<-"ID"
   
@@ -212,6 +210,13 @@ KORAmapsex<-function(
       
       sp_poly <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords)), ID=ID.names[i,"ID"])))
       raster::crs(sp_poly)<-CRS
+      
+      if(ID.names[i,Sex]=="male"){
+      Buffer.polygon<-1800}
+      if(ID.names[i,Sex]=="female"){
+      Buffer.polygon<-1400}
+      if(ID.names[i,Sex]=="unknown"){
+      Buffer.polygon<-1000}
       
       sp_poly<-rgeos::gBuffer(sp_poly,width=Buffer.polygon)
       raster::crs(sp_poly)<-CRS
