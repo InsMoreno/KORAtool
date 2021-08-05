@@ -180,18 +180,19 @@ KORAmap<-function(
   # --- Add the polygons and labels: ####
   
   # -- Create Table
-  ID.names<-table[table$animal_species==species, c("id_individual","animal_species")]
+  ID.names<-table[table$animal_species==species, c("id_individual","animal_species","Sex")]
   ID.names<-unique(ID.names)
   
   
   # -- Indicate colors
   #(used https://www.datanovia.com/en/blog/how-to-stimulate-colorblindness-vision-in-r-figures/)
   
-  # If not enough colors, will repeat the 8 colors
-  ID.names$col<-rep_len(c("#000000", "#E69F00",
-                          "#56B4E9", "#009E73",
-                          "#F0E442", "#0072B2",
-                          "#D55E00", "#CC79A7"),length.out=length(ID.names$id_individual))
+  #All black as default
+  ID.names$col<-"#000000"
+  #Males in orange
+  ID.names[ID.names$Sex=="male","col"]<-"#E69F00"
+  #Females in blue
+  ID.names[ID.names$Sex=="female","col"]<-"#0072B2"
   
   names(ID.names)[1]<-"ID"
   
