@@ -300,9 +300,6 @@ KORAmap<-function(
                                ggplot2::aes(x=x,y=y),
                                col="red", pch=19, cex=1)
   
-  
-  
-  
   # ------------------- Export the plot:####
   
   
