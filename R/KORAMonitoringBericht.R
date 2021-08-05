@@ -1,7 +1,4 @@
 #' KORAMonitoringBericht
-#' Calls the Kora Monitoricht Report (.rmd) and provides all info needed
-#'
-#'
 #'
 #' @param effective.TN 
 #' @param potentially.TN 
@@ -71,26 +68,3 @@ KORAMonitoringBericht<-function(
   
  }
   
-
-  
-  
-
-  
-  
-
-  
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
