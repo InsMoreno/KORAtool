@@ -9,6 +9,7 @@
 #' @param Lynxmaster 
 #' @param Einlesung_Luchs 
 #' @param Compartment 
+#' @param Refarea
 #' @param favorable 
 #'
 #' @return
@@ -26,6 +27,7 @@ KORAMonitoringBericht<-function(
   Lynxmaster,
   Einlesung_Luchs,
   Compartment,
+  Refarea,
   favorable){
   
     rmarkdown::render(input = "KORA_Report_R.Rmd", 
@@ -63,8 +65,18 @@ KORAMonitoringBericht<-function(
                                     #15:"Berner Oberland Ost"
                                     #16:"Oberwallis")
                                     Compartment= Compartment,
+                                    #Sutdy Area (Reference Area):
+                                    # 1: "Western central Switzerland"
+                                    # 2: "North-eastern Switzerland"  
+                                    # 3: "North-western Alps"
+                                    # 4: "Mid-central Switzerland"
+                                    # 5: "Southern Jura"
+                                    # 6: "Central Jura"
+                                    # 7: "Northern Jura" 
+                                    # 8: "Northern Valais"  
+                                    Refarea = 5,
                                     #Suitable habitat (km2):
                                     favorable= favorable))
-  
+ 
  }
   
