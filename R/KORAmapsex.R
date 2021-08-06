@@ -61,7 +61,6 @@ KORAmapsex<-function(
   Sites<-data.table::data.table(x=as.numeric(stringr::str_split_fixed(unique(table$XY), ";", 2)[,1]),
                                 y=as.numeric(stringr::str_split_fixed(unique(table$XY), ";", 2)[,2]))
   
-  
   #Create TIME variable (date and time in correct format)
   table$TIME<-as.POSIXct(paste(table$exposure_date,table$exposure_time, sep=" "),
                          format= "%Y-%m-%d %H:%M:%S")
@@ -89,14 +88,10 @@ KORAmapsex<-function(
   
   #Add x% around the BBox to have some extra map area
   
-
-  
   study_area[1,1]<-study_area[1,1]-round(study_area[1,1]*Buffer.map) #x min
   study_area[2,1]<-study_area[2,1]-round(study_area[2,1]*2*Buffer.map) #y min
   study_area[1,2]<-study_area[1,2]+round(study_area[1,2]*Buffer.map) #x max
   study_area[2,2]<-study_area[2,2]+round(study_area[2,2]*Buffer.map) #y max
-  
-  
   
   study_area<-rgeos::readWKT(paste("POLYGON((",
                                    study_area[1,1]," ",study_area[2,1],",",
@@ -118,8 +113,6 @@ KORAmapsex<-function(
   suppressWarnings(map <- OpenStreetMap::openmap(c(LAT2,LON1), c(LAT1,LON2), zoom = Zoom.map, #can be replaced by NULL
                                                  type = c("stamen-terrain")[1],
                                                  mergeTiles = TRUE))
-  
-
   
   #Correct projection
   #warnings OK
