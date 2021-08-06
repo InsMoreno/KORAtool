@@ -11,6 +11,7 @@
 #' @param Pattern
 #' @param Buffer.label
 #' @param Name.Map
+#' @Refarea
 #' @Red.point.ID
 #'
 #' @return
@@ -28,6 +29,7 @@ KORAmapsex<-function(
   Buffer.label,
   Pattern,
   Name.Map,
+  Refarea,
   Red.point.ID
   
 ){
