@@ -298,18 +298,18 @@ KORAmapsex<-function(
                               bg.r = 0.25)
   
   
-  
-  
-  # --- Add points:####
-  map<-map+ggplot2::geom_point(data=table[table$animal_species==species,],
-                               ggplot2::aes(x=x,y=y),
-                               col="black", pch=19, cex=1)
-  
   # --- Add points U red:####
   map<-map+ggplot2::geom_point(data=table[table$animal_species==species &
                                             table$id_individual==Red.point.ID,],
                                ggplot2::aes(x=x,y=y),
                                col="red", pch=19, cex=1)
+  
+  # --- Add points black:####
+  map<-map+ggplot2::geom_point(data=table[table$animal_species==species,],
+                               ggplot2::aes(x=x,y=y),
+                               col="black", pch=19, cex=1)
+  
+
   
   # ------------------- Export the plot:####
   
