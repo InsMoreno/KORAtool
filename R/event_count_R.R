@@ -21,7 +21,6 @@ EvCountR<-function(
   M.Table<-Table_Object
   M.Table<-M.Table[,c("TIME","ID","x","y")]
 
-
   # ---- Arange Master Table ####
 
   #Time/Date info
