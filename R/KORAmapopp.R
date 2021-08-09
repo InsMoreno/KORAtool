@@ -5,12 +5,14 @@
 #' @param Stop 
 #' @param Compartment 
 #' @param Refarea 
+#' @param IDremove
+#' @param Buffer.polygon
 #'
 #' @return
 #' @export
 #'
 #' @examples
-KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea){
+KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.polygon){
   
   # ------ Projection : ####
   #Projection to be used for the map (CH1903 / LV03):
