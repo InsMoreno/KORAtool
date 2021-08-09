@@ -47,8 +47,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
                                    study_area[1,2]," ",study_area[2,2],",",
                                    study_area[1,2]," ",study_area[2,1],",",
                                    study_area[1,1]," ",study_area[2,1],"))",sep=""),p4s= CRS)
-  
-  
+    
   # -- Altitude layer #
   Alt <- raster::raster("MAP_Data/CHHS.TIF")
   # indicate CRS
@@ -85,8 +84,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     ggplot2::geom_sf(data=Lakes,fill="#56B4E9")+
     #Reference Area
     ggplot2::geom_sf(data=Rcompartment,col="#009E73",fill=NA,lwd=1.1)
-  
-
+ 
   # --- Add the polygons and labels: ####
   
   # -- Create Table
@@ -104,11 +102,8 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
                           "#56B4E9", "#009E73",
                           "#F0E442", "#0072B2",
                           "#D55E00", "#CC79A7"),length.out=length(ID.names$ID))
-  
-  
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
-  
   
   suppressWarnings(
     
@@ -129,7 +124,6 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   )
   
   # -- Data labels
-  
   data_labels<-data.frame()
   for(i in 1:length(ID.names$ID)){
     
@@ -156,10 +150,6 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     data_labels[i, "ID"]<- ID.names[i,ID]
     data_labels[i, "col.ID"]<- ID.names[i,col]
   }
-  
-  # -- remove unwanted ID
-  #if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
-  
   
   # -- Add to the map
   
