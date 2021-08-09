@@ -203,7 +203,6 @@ KORAmapsex<-function(
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
   
-  
   suppressWarnings(
     
     for(i in 1:length(ID.names$ID)){
@@ -260,7 +259,6 @@ KORAmapsex<-function(
   
   # -- remove unwanted ID
   if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
-  
   
   # -- Add to the map
   
