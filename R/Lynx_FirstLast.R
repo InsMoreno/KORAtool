@@ -29,10 +29,8 @@ Lynx_FirstLast<-function(LynxMaster=LynxMaster,
                                    max(as.POSIXct(PhotoPredator[PhotoPredator$id_individual==LynxMaster[i,"name"],"exposure_date"],format='%Y-%m-%d'))))
 
  }
- 
 #Call Table
 LynxMaster
-  
 }
 
 
