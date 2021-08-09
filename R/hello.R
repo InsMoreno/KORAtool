@@ -6,5 +6,5 @@
 #' @return text
 #' @export
 KORAHELLO <- function(Username) {
-print(paste("Hello ", Username, ", we are the: ",Sys.time(),sep=""))
+print(paste("Hello ", Username, ", the current time is: ",Sys.time(),sep=""))
 }
