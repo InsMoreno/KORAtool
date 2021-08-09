@@ -50,7 +50,7 @@ KORAMonitoringBericht<-function(
                                     #Photo Predator csv name:
                                     PhotoPredator= PhotoPredator,
                                     #Lynx Observation CSV name:
-                                    LynxObs= LynxOb,
+                                    LynxObs= LynxObs,
                                     #Compartment: 
                                     #1:"Nordostschweiz"
                                     #2:"Misox (Mesolcina)"
