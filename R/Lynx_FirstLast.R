@@ -19,8 +19,7 @@ Lynx_FirstLast<-function(LynxMaster=LynxMaster,
   
   LynxMaster<-LynxMaster[,c("name","coatPattern","yearOfBirth","deathDate","mother")]
   
-  
-  
+ 
  for(i in 1:length(LynxMaster$name)){
    
    LynxMaster[i,"FirstSeen"]<-suppressWarnings(min(min(as.POSIXct(LynxObs[LynxObs$lynx_ID==LynxMaster[i,name],date],format='%Y-%m-%d',tz="")),
