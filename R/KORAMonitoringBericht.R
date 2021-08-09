@@ -7,7 +7,8 @@
 #' @param Authors 
 #' @param KORAphoto 
 #' @param Lynxmaster 
-#' @param Einlesung_Luchs 
+#' @param PhotoPredator
+#' @param LynxObs
 #' @param Compartment 
 #' @param Refarea
 #' @param favorable 
@@ -25,7 +26,8 @@ KORAMonitoringBericht<-function(
   Authors,
   KORAphoto,
   Lynxmaster,
-  Einlesung_Luchs,
+  PhotoPredator,
+  LynxObs,
   Compartment,
   Refarea,
   favorable){
@@ -45,8 +47,10 @@ KORAMonitoringBericht<-function(
                                     KORAphoto= KORAphoto,
                                     #Lynx master data csv name:
                                     Lynxmaster= Lynxmaster,
-                                    #Lynx Einlesung Luchs csv name:
-                                    Einlesung_Luchs= Einlesung_Luchs,
+                                    #Photo Predator csv name:
+                                    PhotoPredator= PhotoPredator,
+                                    #Lynx Observation CSV name:
+                                    LynxObs= LynxOb,
                                     #Compartment: 
                                     #1:"Nordostschweiz"
                                     #2:"Misox (Mesolcina)"
