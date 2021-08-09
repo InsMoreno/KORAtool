@@ -46,12 +46,12 @@ KORAmapsex<-function(
 
   # ------------------- Import Data ####
   
-  if(!is.data.table(KORA.Photo.Output)){
+  if(!data.table::is.data.table(KORA.Photo.Output)){
       table<-data.table::fread(KORA.Photo.Output,
                            select = c("animal_species","x","y", "exposure_date", "exposure_time","id_individual"))
   }
   
-  if(is.data.table(KORA.Photo.Output)){
+  if(data.table::is.data.table(KORA.Photo.Output)){
     table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual","Sex")]
   }
   
