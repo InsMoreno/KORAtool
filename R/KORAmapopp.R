@@ -38,7 +38,6 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   suppressWarnings(pts<-sf::st_intersection(pts,Komp$geometry[Compartment]))
   
   # -- Study Area ####
-  
   study_area<-sp::bbox(as.matrix(Komp$geometry[Compartment][[1]]))
   
   study_area<-rgeos::readWKT(paste("POLYGON((",
