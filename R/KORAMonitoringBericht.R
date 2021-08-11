@@ -91,9 +91,4 @@ KORAMonitoringBericht<-function(
                                     #Suitable habitat (km2):
                                     favorable= favorable,
                                     #Period length selected (3 other 5 days)
-                                    Period.selected= Period.selected)
-}
-
-  
-                    
- 
+                                    Period.selected= Period.selected)}
