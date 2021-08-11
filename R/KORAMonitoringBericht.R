@@ -12,6 +12,7 @@
 #' @param Compartment 
 #' @param Refarea
 #' @param favorable 
+#' @param Period.selected
 #'
 #' @return
 #' @export
@@ -30,7 +31,8 @@ KORAMonitoringBericht<-function(
   LynxObs,
   Compartment,
   Refarea,
-  favorable){
+  favorable,
+  Period.selected){
   
     rmarkdown::render(input = "KORA_Report_R.Rmd", 
                       output_file = "KORA_Report_R_1.docx",
@@ -86,9 +88,11 @@ KORAMonitoringBericht<-function(
                                     #14  Nord du Jura    I b  
                                     #15  Centre des Grisons    V d 
                                     #16  Est de l'Oberland Bernois   IV b   
-                                    Refarea = 5,
+                                    Refarea = Refarea,
                                     #Suitable habitat (km2):
-                                    favorable= favorable))
+                                    favorable= favorable),
+                                    #Period length selected (3 other 5 days)
+                                    Period.selected= Period.selected)
  
  }
   
