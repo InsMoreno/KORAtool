@@ -72,7 +72,6 @@ KORAmapsex<-function(
   #Keep only used variables
   table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex")]
   
-  
   # ------------------- Map ####
   
   # ------ Projection : ####
