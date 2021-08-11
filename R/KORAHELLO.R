@@ -4,7 +4,8 @@
 #' @param Luc Le Grand
 #'
 #' @return text
-#' @export
+#' @export$
+
 KORAHELLO <- function(Username) {
 print(paste("Hello ", Username, ", the current time is: ",Sys.time(),sep=""))
 }
