@@ -127,7 +127,6 @@ KORAmapsex<-function(
                    axis.ticks=ggplot2::element_blank(),
                    panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=12))
   
-  
   # --- Import shapefile Study area Polygon
   suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
   Rcompartment<-Rcompartment[Refarea,]
