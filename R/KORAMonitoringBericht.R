@@ -90,7 +90,7 @@ KORAMonitoringBericht<-function(
                                     #16  Est de l'Oberland Bernois   IV b   
                                     Refarea = Refarea,
                                     #Suitable habitat (km2):
-                                    favorable= favorable),
+                                    favorable= favorable,
                                     #Period length selected (3 other 5 days)
                                     Period.selected= Period.selected)
  
