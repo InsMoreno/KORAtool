@@ -33,8 +33,7 @@ KORAMonitoringBericht<-function(
   Refarea,
   favorable,
   Period.selected){
-  
-    rmarkdown::render(input = "KORA_Report_R.Rmd", 
+  rmarkdown::render(input = "KORA_Report_R.Rmd", 
                       output_file = "KORA_Report_R_1.docx",
                       params = list(#Trap night calendar information:
                                     effective.TN= effective.TN,
@@ -93,6 +92,5 @@ KORAMonitoringBericht<-function(
                                     favorable= favorable,
                                     #Period length selected (3 other 5 days)
                                     Period.selected= Period.selected)
+                    }
  
- }
-  
