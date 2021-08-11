@@ -1,4 +1,3 @@
-
 #' KORAHELLO
 #'
 #' @param Luc Le Grand
