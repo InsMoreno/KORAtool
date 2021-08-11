@@ -11,7 +11,7 @@
 #' @param Pattern
 #' @param Buffer.label
 #' @param Name.Map
-#' @Refarea
+#' @param Refarea
 #' @Red.point.ID
 #'
 #' @return
