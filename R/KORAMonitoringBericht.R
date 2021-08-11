@@ -70,14 +70,22 @@ KORAMonitoringBericht<-function(
                                     #16:"Oberwallis")
                                     Compartment= Compartment,
                                     #Sutdy Area (Reference Area):
-                                    # 1: "Western central Switzerland"
-                                    # 2: "North-eastern Switzerland"  
-                                    # 3: "North-western Alps"
-                                    # 4: "Mid-central Switzerland"
-                                    # 5: "Southern Jura"
-                                    # 6: "Central Jura"
-                                    # 7: "Northern Jura" 
-                                    # 8: "Northern Valais"  
+                                    #1 Surselva    V c 
+                                    #2 Sud du Bas Valais   IV d 
+                                    #3 Haut-Valais   IV e 
+                                    #4 Simme-Saane   IV a 
+                                    #5 Nord-est de la Suisse     II  
+                                    #6 Val Mesolcina-Sud du Tessin    V b  
+                                    #7 Est de la Suisse centrale  III c 
+                                    #8 Centre de la Suisse centrale  III b 
+                                    #9 Engadine    V e 
+                                    #10 Tessin    V a 
+                                    #11 Sud du Jura    I a  
+                                    #12 Nor due Rhône   IV c
+                                    #13  Ouest de la Suisse centrale  III a  
+                                    #14  Nord du Jura    I b  
+                                    #15  Centre des Grisons    V d 
+                                    #16  Est de l'Oberland Bernois   IV b   
                                     Refarea = 5,
                                     #Suitable habitat (km2):
                                     favorable= favorable))
