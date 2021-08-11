@@ -97,4 +97,3 @@ KORAMonitoringBericht<-function(
                                     #JuvasMother
                                     JuvasMother=JuvasMother))
 }
-
