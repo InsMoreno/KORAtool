@@ -95,6 +95,6 @@ KORAMonitoringBericht<-function(
                                     #Period length selected
                                     Period.selected= Period.selected,
                                     #JuvasMother
-                                    JuvasMother=JuvasMother)
+                                    JuvasMother=JuvasMother))
 }
 
