@@ -64,22 +64,20 @@ KORAmapsex<-function(
   #Create TIME variable (date and time in correct format)
   table$TIME<-as.POSIXct(paste(table$exposure_date,table$exposure_time, sep=" "),
                          format= "%Y-%m-%d %H:%M:%S")
-  
   #Subset Date
   table<-table[table$TIME>as.POSIXct(Start,format= "%Y-%m-%d %H:%M:%S") &
                  table$TIME<as.POSIXct(Stop,format= "%Y-%m-%d %H:%M:%S"),]
-  
   #Keep only used variables
   table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex")]
   
-  # ------------------- Map ####
+  # ------------------- Map 
   
-  # ------ Projection : ####
+  # ------ Projection : 
   #Projection to be used for the map (CH1903 / LV03):
   #Warnings OK
   suppressWarnings(CRS<- sp::CRS("+init=epsg:21781"))
   
-  # ------ Study Area ####
+  # ------ Study Area 
   
   #Compute Boundary Box (BB)
   study_area.origin<-sp::bbox(sp::SpatialPoints(table[,c("x","y")]))
