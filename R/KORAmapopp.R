@@ -68,7 +68,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   Lakes<-sf::st_as_sf(Lakes)
   
   # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("Referenzgebiete_alle.shp"))
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
   Rcompartment<-Rcompartment[Refarea,]
   Rcompartment<-sf::st_as_sf(Rcompartment)
   
