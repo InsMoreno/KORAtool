@@ -13,6 +13,7 @@
 #' @param Refarea
 #' @param favorable 
 #' @param Period.selected
+#' @param JuvasMother
 #'
 #' @return
 #' @export
@@ -32,7 +33,8 @@ KORAMonitoringBericht<-function(
   Compartment,
   Refarea,
   favorable,
-  Period.selected){
+  Period.selected,
+  JuvasMother){
   rmarkdown::render(input = "KORA_Report_R.Rmd", 
                       output_file = "KORA_Report_R_1.docx",
                       params = list(#Trap night calendar information:
@@ -91,5 +93,8 @@ KORAMonitoringBericht<-function(
                                     #Suitable habitat (km2):
                                     favorable= favorable,
                                     #Period length selected
-                                    Period.selected= Period.selected)}
+                                    Period.selected= Period.selected,
+                                    #JuvasMother
+                                    JuvasMother=JuvasMother)
+}
 
