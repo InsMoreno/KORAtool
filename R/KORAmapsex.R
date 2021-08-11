@@ -12,7 +12,7 @@
 #' @param Buffer.label
 #' @param Name.Map
 #' @param Refarea
-#' @Red.point.ID
+#' @param Red.point.ID
 #'
 #' @return
 #' @export
