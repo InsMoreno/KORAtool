@@ -129,7 +129,7 @@ KORAmapsex<-function(
   
   
   # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("Referenzgebiete_alle.shp"))
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
   Rcompartment<-Rcompartment[Refarea,]
 
   # --- Add shapefile Study area Polygon
