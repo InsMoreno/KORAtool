@@ -62,6 +62,3 @@ EvCountR<-function(
   #cat("Total N site is equal to the total number of UNIQUE site where the species has been seen")
 
 }
-
-
-
