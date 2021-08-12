@@ -198,7 +198,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
                           ggplot2::annotate("text",
                                             x = mean(c(study_area@bbox[1,1],study_area@bbox[1,2])),
                                             y = mean(c(study_area@bbox[2,1],study_area@bbox[2,2])),
-                                            label = "! NO Opp. OBSERVATION !")
+                                            label = "! NO IDENTIFIED LYNX SEEN (Opp. Mon.) !")
     
     map
   }
