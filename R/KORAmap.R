@@ -43,9 +43,6 @@ KORAmap<-function(
   if(!exists("Buffer.polygon")){warning("Buffer.polygon not provided. Default = 500m"); Buffer.polygon<-500}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
-
-  
-  
   
   # ------------------- Import Data ####
   
