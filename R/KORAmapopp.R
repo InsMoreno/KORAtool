@@ -104,8 +104,10 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
   
-  suppressWarnings(
+  if(length(ID.names$ID)>0){
+  
     
+  suppressWarnings(
     for(i in 1:length(ID.names$ID)){
       dat <- Data.opp[Data.opp$lynx_ID==ID.names[i,ID],c("x","y")] #if in github ID should be in "ID"
       
@@ -119,9 +121,8 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
       raster::crs(sp_poly)<-CRS
       sp_poly.all[i]<-sp_poly
       
-    }
-  )
-  
+    })
+    
   # -- Data labels
   data_labels<-data.frame()
   for(i in 1:length(ID.names$ID)){
@@ -181,4 +182,24 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   
   map
   
+  }else{
+  #If no opp observation print empty map with message on top of it:
+    
+    map<-map+ggplot2::theme(plot.title =ggplot2::element_blank(),
+                          strip.background = ggplot2::element_blank(),
+                          panel.background= ggplot2::element_rect(fill = "white",color="black"),
+                          panel.grid = ggplot2::element_line(colour = "white"),
+                          axis.title =ggplot2::element_blank(),
+                          axis.text = ggplot2::element_blank(),
+                          axis.ticks= ggplot2::element_blank(),
+                          legend.position="none",
+                          panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1.5))+
+                          # Add text element to plot
+                          ggplot2::annotate("text",
+                                            x = mean(c(study_area@bbox[1,1],study_area@bbox[1,2])),
+                                            y = mean(c(study_area@bbox[2,1],study_area@bbox[2,2])),
+                                            label = "! NO Opp. OBSERVATION !")
+    
+    map
+  }
 }
