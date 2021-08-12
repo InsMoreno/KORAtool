@@ -96,7 +96,6 @@ KORAmapsex<-function(
                                    study_area[1,2]," ",study_area[2,2],",",
                                    study_area[1,2]," ",study_area[2,1],",",
                                    study_area[1,1]," ",study_area[2,1],"))",sep=""),p4s= CRS)
-  
   # ------ Open Source Map####
   
   #study area BBox in lat long
