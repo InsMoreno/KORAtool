@@ -130,7 +130,6 @@ KORAmapsex<-function(
   # --- Add shapefile Study area Polygon
   map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat),
                                colour="#009E73", fill=NA, alpha=1, lwd=1.1)+
-
   # --- Add Sites:####
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y),col="black", pch=1,size=5)
@@ -148,12 +147,7 @@ KORAmapsex<-function(
   xright<-xleft+dist.scale*1000#right
   ybottom<-study_area.origin[2,1]-4*s.thick#bottom
   ytop<-study_area.origin[2,1]-3*s.thick#top
-  
-  #scale white rectangle
-  #xleft.w<-xleft+(1/3)*dist.scale*1000
-  #xright.w<-xleft+(2/3)*dist.scale*1000
 
-  
   map<-map+
     ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
                        fill=c("black"),
