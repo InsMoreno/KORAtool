@@ -33,9 +33,14 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   #Import shapefile compartment
   Komp <- sf::read_sf(dsn = "MAP_Data/Luchs_Komp_21_07_2015_new.shp")
   
+  # --- Import shapefile Study area Polygon
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
+  Rcompartment<-Rcompartment[Refarea,]
+  Rcompartment<-sf::st_as_sf(Rcompartment)
+  
   #Subset observation within the compartment
   #Warnings ok
-  suppressWarnings(pts<-sf::st_intersection(pts,Komp$geometry[Compartment]))
+  suppressWarnings(pts<-sf::st_intersection(pts,Rcompartment$geometry[Refarea]))
   
   # -- Study Area ####
   study_area<-sp::bbox(as.matrix(Komp$geometry[Compartment][[1]]))
@@ -66,13 +71,8 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   suppressWarnings(Lakes <- raster::shapefile("MAP_Data/grandlacs.shp"))
   Lakes<-raster::crop(Lakes,study_area)
   Lakes<-sf::st_as_sf(Lakes)
-  
-  # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
-  Rcompartment<-Rcompartment[Refarea,]
-  Rcompartment<-sf::st_as_sf(Rcompartment)
-  
-  
+ 
+  # --- Start maping
   map<-ggplot2::ggplot() +
     #Alt Raster
     ggplot2::geom_raster(data = Alt_df , ggplot2::aes(x = x, y = y, alpha = CHHS))+
