@@ -146,10 +146,7 @@ KORAmap<-function(
   ybottom<-study_area.origin[2,1]-4*s.thick#bottom
   ytop<-study_area.origin[2,1]-3*s.thick#top
   
-  #scale white rectangle
-  #xleft.w<-xleft+(1/3)*dist.scale*1000
-  #xright.w<-xleft+(2/3)*dist.scale*1000
-
+  # plot scale
   
   map<-map+
     ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
