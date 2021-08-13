@@ -16,6 +16,7 @@
 #' @param JuvasMother
 #' @param Species.other
 #' @param ReportName
+#' @param which.best.model.selected
 #'
 #' @return
 #' @export
@@ -38,7 +39,8 @@ KORAMonitoringBericht<-function(
   Period.selected,
   JuvasMother,
   Species.other,
-  ReportName){
+  ReportName,
+  which.best.model.selected){
   rmarkdown::render(input = "KORA_Report_R.Rmd", 
                       output_file = paste(ReportName,".docx"),
                       params = list(#Trap night calendar information:
@@ -101,5 +103,7 @@ KORAMonitoringBericht<-function(
                                     #JuvasMother
                                     JuvasMother=JuvasMother,
                                     #Species.other to be ploted at the end of the report
-                                    Species.other = Species.other))
+                                    Species.other = Species.other,
+                                    # Which best Model (1 to 8)
+                                    which.best.model.selected = which.best.model.selected))
 }
