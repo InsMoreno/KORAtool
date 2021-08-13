@@ -87,8 +87,6 @@ KORAmap<-function(
   
   #Add x% around the BBox to have some extra map area
   
-
-  
   study_area[1,1]<-study_area[1,1]-round(study_area[1,1]*Buffer.map) #x min
   study_area[2,1]<-study_area[2,1]-round(study_area[2,1]*2*Buffer.map) #y min
   study_area[1,2]<-study_area[1,2]+round(study_area[1,2]*Buffer.map) #x max
