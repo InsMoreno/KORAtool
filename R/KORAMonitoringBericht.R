@@ -15,6 +15,7 @@
 #' @param Period.selected
 #' @param JuvasMother
 #' @param Species.other
+#' @param ReportName
 #'
 #' @return
 #' @export
@@ -36,9 +37,10 @@ KORAMonitoringBericht<-function(
   favorable,
   Period.selected,
   JuvasMother,
-  Species.other){
+  Species.other,
+  ReportName){
   rmarkdown::render(input = "KORA_Report_R.Rmd", 
-                      output_file = "KORA_Report_R_1.docx",
+                      output_file = paste(ReportName,".docx"),
                       params = list(#Trap night calendar information:
                                     effective.TN= effective.TN,
                                     potentially.TN= potentially.TN,
