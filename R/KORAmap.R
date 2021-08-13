@@ -32,7 +32,6 @@ KORAmap<-function(
   Red.point.ID
   
 ){
-  
   # ---------- Default values: ####
   if(!exists("KORA.Photo.Output")){warning("KORA.Photo.Output not provided")}
   if(!exists("species")){warning("species not provided")}
