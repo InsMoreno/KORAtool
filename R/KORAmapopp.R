@@ -40,7 +40,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   
   #Subset observation within the compartment
   #Warnings ok
-  suppressWarnings(pts<-sf::st_intersection(pts,Rcompartment$geometry[Refarea]))
+  suppressWarnings(pts<-sf::st_intersection(pts,Rcompartment))
   
   # -- Study Area ####
   study_area<-sp::bbox(as.matrix(Komp$geometry[Compartment][[1]]))
