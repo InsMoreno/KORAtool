@@ -64,7 +64,6 @@ EvCount<-function(
   # Total site should be the total of unique site
   Table[Table$ID=="Total","N site"]<-length(unique(M.Table[M.Table$animal_species==species,XY]))
 
-  
   # ---- Print ouput ####
   print(Table)
   warning("Total N site is equal to the total number of UNIQUE site where the species has been seen")
