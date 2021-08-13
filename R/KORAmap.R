@@ -71,7 +71,6 @@ KORAmap<-function(
   #Keep only used variables
   table<-table[,c("animal_species","XY","x","y","TIME","id_individual")]
   
-  
   # ------------------- Map ####
   
   # ------ Projection : ####
@@ -116,7 +115,6 @@ KORAmap<-function(
                                                  mergeTiles = TRUE))
   
 
-  
   #Correct projection
   #warnings OK
   suppressWarnings(map <- OpenStreetMap::openproj(map, projection = "+init=epsg:21781"))
