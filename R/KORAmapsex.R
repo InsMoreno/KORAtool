@@ -192,9 +192,7 @@ KORAmapsex<-function(
   
   # -- remove unwanted ID
   if(exists("IDremove")){ID.names<-ID.names[ID.names$ID!=IDremove,]}
-  
-  
-  
+ 
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
   
