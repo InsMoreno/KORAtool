@@ -171,9 +171,7 @@ KORAmapsex<-function(
   ID.names<-table[table$animal_species==species, c("id_individual","animal_species","Sex")]
   ID.names<-unique(ID.names)
   
-  
   # -- Indicate colors
-  #(used https://www.datanovia.com/en/blog/how-to-stimulate-colorblindness-vision-in-r-figures/)
   
   #All black as default
   ID.names$col<-"#000000"
@@ -311,7 +309,6 @@ KORAmapsex<-function(
                     units = "cm",
                     width = 24,
                     height = 20)
-    
     
   }
 
