@@ -83,6 +83,13 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     ggplot2::geom_sf(data=Lakes,fill="#56B4E9")+
     #Reference Area
     ggplot2::geom_sf(data=Rcompartment,col="#009E73",fill=NA,lwd=1.1)
+  
+  # -- Add Points where U were seen
+
+  #Subset "U"
+  pts<- pts %>% dplyr::filter(lynx_ID=="U")
+  #Add Points
+  map<-map+ggplot2::geom_sf(data = pts,col="#D55E00",size=3)
  
   # --- Add the polygons and labels: ####
   
