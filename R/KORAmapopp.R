@@ -207,6 +207,13 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
                                             y = mean(c(study_area@bbox[2,1],study_area@bbox[2,2])),
                                             label = "! NO IDENTIFIED LYNX SEEN (Opp. Mon.) !")
     
+    # -- Add Points where U were seen
+
+      #Subset "U"
+      pts<- pts %>% dplyr::filter(lynx_ID=="U")
+      #Add Points
+      map<-map+ggplot2::geom_sf(data = pts,col="#D55E00",size=3)
+    
     map
   }
 }
