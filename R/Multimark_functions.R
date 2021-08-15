@@ -190,30 +190,3 @@ MltiM.Closed.Sometimes.TM<-function(
 #' @examples
 #' MltiM.Closed.Sometimes.TM(KORA.Photo.Output = "Output1.csv",Lynx.Master.Output = "output2.csv",
 #' Period.day = 5, simultaneous.minute = 30 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
