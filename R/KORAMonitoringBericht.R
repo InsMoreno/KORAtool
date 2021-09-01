@@ -42,7 +42,7 @@ KORAMonitoringBericht<-function(
   ReportName,
   which.best.model.selected){
   rmarkdown::render(input = "KORA_Report_R.Rmd", 
-                      output_file = paste(ReportName,".docx"),
+                      output_file = paste(ReportName,".docx",sep=""),
                       params = list(#Trap night calendar information:
                                     effective.TN= effective.TN,
                                     potentially.TN= potentially.TN,
