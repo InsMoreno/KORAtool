@@ -43,7 +43,7 @@ KORAmapsex<-function(
   if(!exists("Zoom.map")){warning("Zoom.map not provided. Default = 14"); Zoom.map<-13}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
-
+  
   # ------------------- Import Data ####
   
   if(!data.table::is.data.table(KORA.Photo.Output)){
@@ -157,7 +157,6 @@ KORAmapsex<-function(
     #                   fill=c("white"),
     #                   inherit.aes = FALSE)+
   
-
   # --- Add KORA GIS Logo:####
   img <- png::readPNG("KORAlogo.png")#KoraGis_transp
   g <- grid::rasterGrob(img, interpolate=TRUE)
@@ -244,6 +243,10 @@ KORAmapsex<-function(
   
   # -- remove unwanted ID
   if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
+  
+  # -- Add JUV to juvenile ID
+  
+  data_labels=data_labels
   
   # -- Add to the map
   
