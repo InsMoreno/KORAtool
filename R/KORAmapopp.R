@@ -106,7 +106,6 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   
   if(length(ID.names$ID)>0){
   
-    
   suppressWarnings(
     for(i in 1:length(ID.names$ID)){
       dat <- Data.opp[Data.opp$lynx_ID==ID.names[i,ID],c("x","y")] #if in github ID should be in "ID"
