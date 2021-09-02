@@ -145,8 +145,8 @@ KORAmapsex<-function(
   # scale black rectangle
   xleft<-study_area@bbox[1,1]+((study_area.origin[1,1]-study_area@bbox[1,1])/3)#left
   xright<-xleft+dist.scale*1000#right
-  ybottom<-study_area.origin[2,1]-6*s.thick#bottom
-  ytop<-study_area.origin[2,1]-5*s.thick#top
+  ybottom<-study_area.origin[2,1]-7*s.thick#bottom
+  ytop<-study_area.origin[2,1]-6*s.thick#top
 
   map<-map+
     ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
