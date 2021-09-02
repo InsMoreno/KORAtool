@@ -153,17 +153,8 @@ KORAmapsex<-function(
                        fill=c("black"),
                        inherit.aes = FALSE)+
     ggplot2::geom_text(x=xright+(2/5)*dist.scale*1000, y=ytop, label=paste(dist.scale,"Km",sep=" "), cex=8, color ="black")
-    #ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft.w, xmax=xright.w, ymin=ybottom, ymax=ytop),
-    #                   fill=c("white"),
-    #                   inherit.aes = FALSE)+
   
-  # --- Add KORA GIS Logo:####
-  img <- png::readPNG("KORAlogo.png")#KoraGis_transp
-  g <- grid::rasterGrob(img, interpolate=TRUE)
-  
-  map<-map+
-    ggplot2::annotation_custom(g, xmin=study_area.origin[1,2], xmax=study_area@bbox[1,2],
-                               ymin=study_area.origin[2,1]-7*s.thick, ymax=study_area.origin[2,1])
+
   # --- Add the polygons and labels: ####
   
   # -- Create Table
