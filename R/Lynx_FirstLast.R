@@ -16,7 +16,6 @@ Lynx_FirstLast<-function(LynxMaster=LynxMaster,
   LynxObs<-data.table::fread(LynxObs,select=c("lynx_ID","image_uid","date"))
   PhotoPredator<-data.table::fread(PhotoPredator,select=c("id_individual","exposure_date","session_name"))
 #Select interesting Columns:  
-  
   LynxMaster<-LynxMaster[,c("name","coatPattern","yearOfBirth","deathDate","mother")]
 #Fill in info First/Last seen: 
  for(i in 1:length(LynxMaster$name)){
