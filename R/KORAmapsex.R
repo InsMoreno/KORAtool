@@ -321,6 +321,19 @@ KORAmapsex<-function(
                                ggplot2::aes(x=x,y=y),
                                col="red", pch=19, cex=1.5)
   
+    # --- Add points orange Juv:####
+  
+  for(i in 1:nrow(table)){
+  
+    table[i,"Juv"]<-unique(Data[Data$id_individual==table[i,id_individual],Juv])
+  
+  }
+  
+  map<-map+ggplot2::geom_point(data=table[table$animal_species==species & 
+                                            table$Juv=="Juv",],
+                               ggplot2::aes(x=x,y=y),
+                               col="#009E73", pch=19, cex=1.5)
+  
   # --- Add points black:####
   map<-map+ggplot2::geom_point(data=table[table$animal_species==species & 
                                           table$id_individual!=Red.point.ID,],
