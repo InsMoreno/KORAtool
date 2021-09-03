@@ -174,6 +174,17 @@ KORAmapsex<-function(
   
   # -- remove unwanted ID
   if(exists("IDremove")){ID.names<-ID.names[ID.names$ID!=IDremove,]}
+  
+  # -- remove Juv polygons
+  
+  for(i in 1:nrow(ID.names)){
+    
+    ID.names[i,"Juv"]<-unique(Data[Data$id_individual==ID.names[i,ID],Juv])
+    
+  }
+  
+  ID.names<-ID.names[ID.names$Juv!="Juv" | is.na(ID.names$Juv),]
+  
  
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
