@@ -46,15 +46,8 @@ KORAmapsex<-function(
   
   # ------------------- Import Data ####
   
-  if(!data.table::is.data.table(KORA.Photo.Output)){
-      table<-data.table::fread(KORA.Photo.Output,
-                           select = c("animal_species","x","y", "exposure_date", "exposure_time","id_individual"))
-  }
-  
-  if(data.table::is.data.table(KORA.Photo.Output)){
-    table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual","Sex")]
-  }
-  
+  table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual","Sex","Juv")]
+ 
   #Sites
   table$XY<-paste(table$x,table$y, sep=";")
   
@@ -68,7 +61,7 @@ KORAmapsex<-function(
   table<-table[table$TIME>as.POSIXct(Start,format= "%Y-%m-%d %H:%M:%S") &
                  table$TIME<as.POSIXct(Stop,format= "%Y-%m-%d %H:%M:%S"),]
   #Keep only used variables
-  table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex")]
+  table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex","Juv")]
   
   # ------------------- Map 
   
@@ -158,7 +151,7 @@ KORAmapsex<-function(
   # --- Add the polygons and labels: ####
   
   # -- Create Table
-  ID.names<-table[table$animal_species==species, c("id_individual","animal_species","Sex")]
+  ID.names<-table[table$animal_species==species, c("id_individual","animal_species","Sex","Juv")]
   ID.names<-unique(ID.names)
   
   # -- Indicate colors
@@ -177,15 +170,8 @@ KORAmapsex<-function(
   
   # -- remove Juv polygons
   
-  for(i in 1:nrow(ID.names)){
-    
-    ID.names[i,"Juv"]<-unique(Data[Data$id_individual==ID.names[i,ID],Juv])
-    
-  }
-  
   ID.names<-ID.names[ID.names$Juv!="Juv" | is.na(ID.names$Juv),]
   
- 
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
   
@@ -323,11 +309,6 @@ KORAmapsex<-function(
   
     # --- Add points orange Juv:####
   
-  for(i in 1:nrow(table)){
-  
-    table[i,"Juv"]<-unique(Data[Data$id_individual==table[i,id_individual],Juv])
-  
-  }
   
   map<-map+ggplot2::geom_point(data=table[table$animal_species==species & 
                                             table$Juv=="Juv",],
