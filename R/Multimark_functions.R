@@ -144,7 +144,6 @@ MltiM.Closed.Sometimes.TM<-function(
   mothers<-unique(U.Lynx[U.Lynx$yearOfBirth==year(Start),mother])
   Juv<-unique(U.Lynx[U.Lynx$mother %in% mothers,id_individual])
 
-
   if(length(mothers)>0){
 
     for(m in 1:length(mothers)) {
