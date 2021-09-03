@@ -51,7 +51,6 @@ KORAmap<-function(
   if(is.data.table(KORA.Photo.Output)){
     table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual")]
   }
-  
   #Sites
   table$XY<-paste(table$x,table$y, sep=";")
   
