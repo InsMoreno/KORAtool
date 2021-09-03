@@ -248,6 +248,40 @@ KORAmapsex<-function(
                             colour=ID.names[i,col], fill=NA, alpha=1, lwd=1.5)
   }
   
+  # -- check if label starts are too close to each other:
+  
+  # compute distance:
+  pts.label<-data_labels[,c("ID","lon","lat")]
+  pts.label <- sf::st_as_sf(pts.label, crs = CRS, coords = c("lon", "lat"))
+  
+  Mat.label<-matrix(as.numeric(sf::st_distance(pts.label, pts.label)),
+                       nrow = length(data_labels$ID), 
+                       ncol = length(data_labels$ID))
+  
+  # Subset label with distance < 2000 m
+  
+  wich.label<-as.data.table(which(Mat.label < 2000 , arr.ind=TRUE))
+  wich.label<-wich.label[wich.label$row!=wich.label$col,]
+  
+  #Continue if necessary:
+  if(nrow(wich.label)>0){
+    
+    # Select every second line as matrix present the distance twice
+    ind <- seq(1, nrow(wich.label), by=2)
+    wich.label<-wich.label[ind, ]
+    
+    # Change label coordinates 
+    
+    for(i in 1: nrow(wich.label)){
+      
+      df<-data.frame(sp_poly.all[[wich.label[i,col]]]@polygons[[1]]@Polygons[[1]]@coords)
+      data_labels[wich.label[i,row], "lon"]<-df[which.min(df$y),1]
+      data_labels[wich.label[i,row], "lat"]<-df[which.min(df$y),2]
+      
+    }
+      
+  }
+  
   # -- Add the labels:
   
   #Add label left side
