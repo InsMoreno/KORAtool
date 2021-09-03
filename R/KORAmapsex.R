@@ -286,8 +286,8 @@ KORAmapsex<-function(
     for(i in 1: nrow(wich.label)){
       
       df<-data.frame(sp_poly.all[[wich.label[i,col]]]@polygons[[1]]@Polygons[[1]]@coords)
-      data_labels[wich.label[i,row], "lon"]<-df[which.min(df$y),1]
-      data_labels[wich.label[i,row], "lat"]<-df[which.min(df$y),2]
+      data_labels[wich.label[i,col], "lon"]<-df[which.min(df$y),1]
+      data_labels[wich.label[i,col], "lat"]<-df[which.min(df$y),2]
       
     }
       
