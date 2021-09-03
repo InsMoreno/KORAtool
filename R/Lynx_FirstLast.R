@@ -26,5 +26,4 @@ Lynx_FirstLast<-function(LynxMaster=LynxMaster,
 }
 #Call Table
 LynxMaster
-  
 }
