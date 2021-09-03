@@ -153,9 +153,10 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   # -- Add Points where U were seen
 
   #Subset "U"
-  pts<- pts %>% dplyr::filter(lynx_ID=="U")
-  #Add Points
-  map<-map+ggplot2::geom_sf(data = pts,col="#D55E00",size=3)
+  map<-map+ggplot2::geom_sf(data = dplyr::filter(lynx_ID=="U"),col="#D55E00",size=3)
+    
+  # -- Add Points where lynx were seen
+  map<-map+ggplot2::geom_sf(data = dplyr::filter(lynx_ID!="U"),col="black",size=2)
   
   # -- Add Polygons to the map
   
