@@ -17,6 +17,7 @@
 #' @param Species.other
 #' @param ReportName
 #' @param which.best.model.selected
+#' @param External.Model
 #'
 #' @return
 #' @export
@@ -40,7 +41,8 @@ KORAMonitoringBericht<-function(
   JuvasMother,
   Species.other,
   ReportName,
-  which.best.model.selected){
+  which.best.model.selected,
+  External.Model){
   rmarkdown::render(input = "KORA_Report_R.Rmd", 
                       output_file = paste(ReportName,".docx",sep=""),
                       params = list(#Trap night calendar information:
@@ -104,6 +106,8 @@ KORAMonitoringBericht<-function(
                                     JuvasMother=JuvasMother,
                                     #Species.other to be ploted at the end of the report
                                     Species.other = Species.other,
-                                    # Which best Model (1 to 8)
-                                    which.best.model.selected = which.best.model.selected))
+                                    # Which best Model (1 to 8 or 9 if ext.model provided)
+                                    which.best.model.selected = which.best.model.selected,
+                                    #External Model results to be used in the report
+                                    External.Model=External.Model))
 }
