@@ -82,7 +82,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     #Lakes
     ggplot2::geom_sf(data=Lakes,fill="#56B4E9")+
     #Reference Area
-    ggplot2::geom_sf(data=Rcompartment,col="#56B4E9",fill=NA,lwd=1.1)
+    ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill=NA,lwd=1.1)
  
   # --- Add the polygons and labels: ####
   
