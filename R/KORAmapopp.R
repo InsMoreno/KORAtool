@@ -70,7 +70,10 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   # -- Import shapefile lakes
   suppressWarnings(Lakes <- raster::shapefile("MAP_Data/grandlacs.shp"))
   Lakes<-raster::crop(Lakes,study_area)
-  Lakes<-sf::st_as_sf(Lakes)
+  #control if any lake in study area
+  if(is.null(Lakes)){
+      Lakes <- sf::st_as_sf(Lakes)
+    }
  
   # --- Start maping
   map<-ggplot2::ggplot() +
@@ -79,11 +82,14 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     ggplot2::scale_alpha(name = "", range = c(0.6, 0))+
     #Polygon Compartment
     ggplot2::geom_sf(data=Komp$geometry[Compartment],fill="white", alpha = 0.4)+
-    #Lakes
-    ggplot2::geom_sf(data=Lakes,fill="#56B4E9")+
     #Reference Area
     ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill=NA,lwd=1.1)
- 
+  if(is.null(Lakes)){
+   #Lakes
+   map<map+ggplot2::geom_sf(data=Lakes,fill="#56B4E9")
+  }
+  
+     
   # --- Add the polygons and labels: ####
   
   # -- Create Table
