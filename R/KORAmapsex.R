@@ -136,18 +136,17 @@ KORAmapsex<-function(
   s.thick<-(0.01*(study_area@bbox[2,2]-study_area@bbox[2,1]))
   
   # scale black rectangle
-  xleft<-study_area@bbox[1,1]+((study_area.origin[1,1]-study_area@bbox[1,1])/3)#left
+  xleft<-study_area.origin[1,1]#left
   xright<-xleft+dist.scale*1000#right
-  ybottom<-study_area.origin[2,1]-7*s.thick#bottom
-  ytop<-study_area.origin[2,1]-6*s.thick#top
-
+  ybottom<-study_area.origin[2,1]-4*s.thick#bottom
+  ytop<-study_area.origin[2,1]-3*s.thick#top
+  
   map<-map+
     ggplot2::geom_rect(mapping=ggplot2::aes(xmin=xleft, xmax=xright, ymin=ybottom, ymax=ytop),
                        fill=c("black"),
                        inherit.aes = FALSE)+
-    ggplot2::geom_text(x=xright+(2/5)*dist.scale*1000, y=ytop, label=paste(dist.scale,"Km",sep=" "), cex=8, color ="black")
+    ggplot2::geom_text(x=xright+(2/5)*dist.scale*1000, y=ytop, label=paste(dist.scale,"Km",sep=" "), cex=10, color ="black")
   
-
   # --- Add the polygons and labels: ####
   
   # -- Create Table
