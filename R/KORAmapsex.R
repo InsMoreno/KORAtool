@@ -72,9 +72,13 @@ KORAmapsex<-function(
   
   # ------ Study Area 
   
+  # --- Import shapefile Study area Polygon
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
+  Rcompartment<-Rcompartment[Refarea,]
+
   #Compute Boundary Box (BB)
-  study_area.origin<-sp::bbox(sp::SpatialPoints(table[,c("x","y")]))
-  study_area<-sp::bbox(sp::SpatialPoints(table[,c("x","y")]))
+  study_area.origin<-sp::bbox(Rcompartment)
+  study_area<-study_area.origin
   
   #Add x% around the BBox to have some extra map area
   
@@ -116,10 +120,6 @@ KORAmapsex<-function(
                    axis.ticks=ggplot2::element_blank(),
                    panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=12))
   
-  # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
-  Rcompartment<-Rcompartment[Refarea,]
-
   # --- Add shapefile Study area Polygon
   map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
                                colour="darkblue", fill=NA, alpha=1, lwd=1.1)+
