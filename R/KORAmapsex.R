@@ -136,9 +136,9 @@ KORAmapsex<-function(
   s.thick<-(0.01*(study_area@bbox[2,2]-study_area@bbox[2,1]))
   
   # scale black rectangle
-  xleft<-study_area[1,1]+((study_area.origin[1,1]-study_area[1,1])/2)#left
+  xleft<-study_area@bbox[1,1]+((study_area.origin[1,1]-study_area@bbox[1,1])/2)#left
   xright<-xleft+dist.scale*1000#right
-  ybottom<-study_area+((study_area.origin[2,1]-study_area[2,1])/2)
+  ybottom<-study_area@bbox[2,1]+((study_area.origin[2,1]-study_area@bbox[2,1])/2)
   ytop<-ybottom+1*s.thick#top
   
   map<-map+
