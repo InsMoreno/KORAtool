@@ -71,7 +71,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   suppressWarnings(Lakes <- raster::shapefile("MAP_Data/grandlacs.shp"))
   Lakes<-raster::crop(Lakes,study_area)
   #control if any lake in study area
-  if(is.null(Lakes)){
+  if(!is.null(Lakes)){
       Lakes <- sf::st_as_sf(Lakes)
     }
  
@@ -84,7 +84,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     ggplot2::geom_sf(data=Komp$geometry[Compartment],fill="white", alpha = 0.4)+
     #Reference Area
     ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill=NA,lwd=1.1)
-  if(is.null(Lakes)){
+  if(!is.null(Lakes)){
    #Lakes
    map<map+ggplot2::geom_sf(data=Lakes,fill="#56B4E9")
   }
