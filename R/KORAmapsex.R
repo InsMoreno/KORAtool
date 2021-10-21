@@ -118,7 +118,7 @@ KORAmapsex<-function(
     ggplot2::theme(axis.title=ggplot2::element_blank(),
                    axis.text=ggplot2::element_blank(),
                    axis.ticks=ggplot2::element_blank(),
-                   panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=12))
+                   panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=15))
   
   # --- Add shapefile Study area Polygon
   map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
