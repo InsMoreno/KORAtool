@@ -121,7 +121,7 @@ KORAmapsex<-function(
   Rcompartment<-Rcompartment[Refarea,]
 
   # --- Add shapefile Study area Polygon
-  map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat),
+  map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
                                colour="darkblue", fill=NA, alpha=1, lwd=1.1)+
   # --- Add Sites:####
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
