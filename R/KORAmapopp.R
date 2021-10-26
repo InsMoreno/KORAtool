@@ -86,7 +86,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
     ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill=NA,lwd=1.1)
   if(!is.null(Lakes)){
    #Lakes
-   map<map+ggplot2::geom_sf(data=Lakes,fill="#56B4E9")
+   map<-map+ggplot2::geom_sf(data=Lakes,fill="#56B4E9")
   }
   
      
