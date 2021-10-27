@@ -26,6 +26,12 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   #Subset data Session window
   Data.opp<-Data.opp[Data.opp$date>Start & Data.opp$date<Stop,]
   
+  #Keep only C1 
+  Data.opp<-Data.opp[Data.opp$SCALP=="C1",]
+  
+  #Keep only U & ID (not lx ou XXXX) they are however indicated in the table opp
+  Data.opp<-Data.opp[Data.opp$lynx_ID!="lx" & Data.opp$lynx_ID!="XXXX" ,]
+  
   #Observations as spatial points
   pts <- sf::st_as_sf(Data.opp, coords = c("x","y"))
   pts<-sf::st_set_crs(pts, 21781) 
