@@ -13,6 +13,7 @@
 #' @param Name.Map
 #' @param Refarea
 #' @param Red.point.ID
+#' @param Sexremove
 #'
 #' @return
 #' @export
@@ -30,7 +31,8 @@ KORAmapsex<-function(
   Pattern,
   Name.Map,
   Refarea,
-  Red.point.ID
+  Red.point.ID,
+  Sexremove
   
 ){
   
@@ -43,7 +45,7 @@ KORAmapsex<-function(
   if(!exists("Zoom.map")){warning("Zoom.map not provided. Default = 14"); Zoom.map<-13}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
-  
+  if(!exists("Sexremove")){warning("Sexremove not provided. Default = none removed"); Sexremove<-""}
   # ------------------- Import Data ####
   
   table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual","Sex","Juv")]
@@ -62,6 +64,9 @@ KORAmapsex<-function(
                  table$TIME<as.POSIXct(Stop,format= "%Y-%m-%d %H:%M:%S"),]
   #Keep only used variables
   table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex","Juv")]
+  
+  # Remove unwantex sex
+  table<-table[table$Sex!=Sexremove,]
   
   # ------------------- Map 
   
