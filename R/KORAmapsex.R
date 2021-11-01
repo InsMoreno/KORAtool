@@ -66,7 +66,7 @@ KORAmapsex<-function(
   table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex","Juv")]
   
   # Remove unwantex sex
-  table<-table[table$Sex!=Sexremove,]
+  table<-table[!(table$Sex %in% Sexremove),]
   
   # ------------------- Map 
   
