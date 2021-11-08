@@ -18,7 +18,7 @@ EvCountR<-function(
   # ---- Import Data ####
 
   # Import KORA Photo data
-  M.Table<-Table_Object
+  M.Table<-data.table::as.data.table(Table_Object)
   M.Table<-M.Table[,c("TIME","ID","x","y")]
 
   # ---- Arange Master Table ####
