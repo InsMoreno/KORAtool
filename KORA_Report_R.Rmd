@@ -156,6 +156,19 @@ for(i in 1:nrow(Data)){
 Data[Data$Sex=="","Sex"]<-NA
 Data[Data$Juv!="Juv","Juv"]<-NA
 
+#check if sex info is provided for every lynx
+#unique(Data[is.na(Data$Sex) & Data$animal_species=="Lynx lynx",id_individual])
+
+
+```
+
+```{r number U,echo=FALSE}
+
+U.length<-length(Data[Data$id_individual=="U" &
+       Data$animal_species=="Lynx lynx",file_name])
+
+tot.length<-length(Data[Data$animal_species=="Lynx lynx",file_name])
+
 ```
 
 ```{r Table sites information, echo=FALSE}
@@ -190,18 +203,20 @@ Table.Sites<- hrule(Table.Sites, rule = "exact")
 
 #Note: Individual considered as Juv are not plotted
 
-KORAtool::KORAmapsex(KORA.Photo.Output=Data,
+KORAtool::KORAmapsex(KORA.Photo.Output=Data, 
   species="Lynx lynx",
   Buffer.map=0.03,
   Zoom.map=10,
   IDremove="U",
   Start= min(Data$TIME), #For the main map, we want all the lynx data plotted
   Stop=max(Data$TIME), #For the main map, we want all the lynx data plotted
-  Pattern="T",#pattern not resent but used not to block the function
+  Pattern="TxxxxT",#pattern not resent but used not to block the function
   Buffer.label=2000, 
   Name.Map="Map_Report",
   Refarea=Refarea,
-  Red.point.ID="U")
+  Red.point.ID="U",
+  Sexremove=c(""))
+
 
 ```
 
@@ -240,25 +255,15 @@ for(i in 1:length(Lynx.Table$ID)){
   Lynx.Table[i,"YOB"]<-L.master[L.master$name==Lynx.Table$ID[i],yearOfBirth]
   Lynx.Table[i,"Sex"]<-L.master[L.master$name==Lynx.Table$ID[i],sex]
   Lynx.Table[i,"mother"]<-L.master[L.master$name==Lynx.Table$ID[i],mother]
-  Lynx.Table[i,"Flank"]<-L.master[L.master$name==Lynx.Table$ID[i],chipNo]
 }
-Lynx.Table$Flank<-as.character(Lynx.Table$Flank)
-Lynx.Table[!is.na(Lynx.Table$Flank),"Flank"]<-"B"
-Lynx.Table[grepl("B",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"B"
-Lynx.Table[grepl("R",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"R"
-Lynx.Table[grepl("L",Lynx.Table$ID) & is.na(Lynx.Table$Flank),"Flank"]<-"L"
 
 #Table with only adults
 Lynx.Table.Adult<-Lynx.Table[Lynx.Table$YOB!=juv.year | is.na(Lynx.Table$YOB),]
 
 #Count minimum adults
-N.ind.lynx<-length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="B",ID])+
-            max(length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="L",ID]),
-                length(Lynx.Table.Adult[Lynx.Table.Adult$Flank=="R",ID]))
+N.ind.lynx<-length(Lynx.Table.Adult$ID)
 
-N.juv<-length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="B",ID])+
-            max(length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="R",ID]),
-                length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$Flank=="L",ID]))
+N.juv<-length(Lynx.Table[Lynx.Table$YOB==juv.year ,ID])
 
 
 
@@ -283,10 +288,11 @@ if(JuvasMother==FALSE){
 }
 
 # Create Event Table
-Event<-KORAtool::EvCountR(Table_Object=Data[!grepl(paste("U",paste(Lynx.Table[Lynx.Table$YOB==juv.year,ID],collapse="|"),sep="|"),
-                                         Data$ID) & Data$animal_species=="Lynx lynx",],Event_length=30)
+Event.data<-Data[!grepl(paste(paste(Lynx.Table[Lynx.Table$YOB==juv.year,ID],collapse="|"),sep="|"),
+                                         Data$ID) & Data$animal_species=="Lynx lynx",]
+Event.data<-Event.data[Event.data$ID!="U",]
 
-
+Event<-KORAtool::EvCountR(Table_Object=Event.data,Event_length=30)
 
 ```
 
@@ -295,7 +301,6 @@ Event<-KORAtool::EvCountR(Table_Object=Data[!grepl(paste("U",paste(Lynx.Table[Ly
 Event.report<-Event
 
 Event.report<-merge(x = Event.report, y = Lynx.Table, by="ID", all.x = TRUE)
-Event.report$Flank<-NULL
 Event.report$YOB<-as.character(Event.report$YOB)
 
 Event.report[Event.report$Sex=="unknown","Sex"]<-NA
@@ -337,9 +342,8 @@ Event.report$FirstSeen<-as.character(year(Event.report$FirstSeen))
 # --- Add juveniles info to each known mother
 for(i in 1:length(unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother]))){
   Event.report[Event.report$ID==unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother])[i],"Juv"]<-paste(
-    Lynx.Table[Lynx.Table$mother==unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother])[i] & !is.na(Lynx.Table$mother),ID],collapse=", ")
+    Lynx.Table[Lynx.Table$mother==unique(Lynx.Table[Lynx.Table$YOB==juv.year,mother])[i] & !is.na(Lynx.Table$mother) & Lynx.Table$YOB==juv.year,ID],collapse=", ")
 }
-
 
 #Add canton seen:
 for(i in 1:length(Event.report$ID)){
@@ -362,9 +366,14 @@ Event.report<-Event.report[,c("ID","Event","N pictures","N site","YOB","FirstSee
 #Remove some columns (discussion with Florin and Fridolin 2021-09-01)
 Event.report<-Event.report[,-c("N pictures","N site","YOB")]
 
+#Rename columns depending of language:
 if(Language=="FR"){names(Event.report)<-c("ID","Événement(s)","Connu depuis","Sexe","Mère","Juvénile(s)","Canton(s)")}
 if(Language=="DE"){names(Event.report)<-c("ID","Ereignisse","Bekannt seit","Geschlecht","Mutter","Juvenil(e)","Kanton(e)")}
 
+# Change Female ("F") to w
+if(Language=="DE"){
+  Event.report[Event.report$Geschlecht=="F","Geschlecht"]<-"W"
+}
 
 #Total as last:
 #bindtotal<-Event.report[Event.report$ID=="Total",]
@@ -379,10 +388,12 @@ New.lynx<-Event.report[,which(Event.report$ID %in% New.lynx)]
 
 # Data table into flextable to plot:
 
+
+
 Event.report<-flextable(Event.report)
 
 if(Language=="FR"){
- Event.report <- set_caption(Event.report, caption = "Lynx détectés dans l’aire de référence pendant les 60 nuits d’échantillonnage. Un événement comprend toutes les images d'un individu à un site donné séparées de moins de 30 minutes. Connu depuis\ua0: année de la première observation. Mère\ua0: mère des lynx indépendants quand elle est connue. Juvénile(s)\ua0: juvénile(s) des lynx femelles indépendantes quand elles sont connues. Canton(s)\ua0: canton(s) dans le(s)quels les lynx ont été observés lors de la session. Les lynx qui ont été détecté pour la première fois lors de la session sont mis en évidence en **gras**.",autonum = officer::run_autonum(
+ Event.report <- set_caption(Event.report, caption = "Lynx détectés dans l’aire de référence pendant les 60 nuits d’échantillonnage. Un événement comprend toutes les images d'un individu à un site donné séparées de moins de 30 minutes. Connu depuis\ua0: année de la première observation. Mère\ua0: mère des lynx indépendants quand elle est connue. Juvénile(s)\ua0: juvénile(s) des lynx femelles indépendantes quand elles sont connues. Canton(s)\ua0: canton(s) dans le(s)quels les lynx ont été observés lors de la session. Les lynx qui ont été détectés pour la première fois lors de la session sont mis en évidence en **gras**.",autonum = officer::run_autonum(
   seq_id = "table",
   pre_label = "Tab. ",
   post_label = ". ",
@@ -394,7 +405,7 @@ if(Language=="FR"){
 }
 
 if(Language=="DE"){
- Event.report <- set_caption(Event.report, caption = "Luchse, die in den 60 Nächten des Durchgangs fotografiert wurden. Ein Ereignis umfasst alle Bilder eines Luchsindividuums am selben Standort, welche weniger als 30 Minuten auseinander liegen. Bekannt seit: Jahr des ersten Nachweises. Mutter: Mutter von selbständigen Luchsen, sofern bekannt. Juvenil(e): Jungtiere von selbständigen Luchsen, sofern bekannt. Kanton(e): Kantone, in welchen sie während des Durchgangs fotografiert wurden. **Fett** hervorgehoben: Luchse, die während des Durchgangs zum ersten Mal entdeckt wurden.",autonum = officer::run_autonum(
+ Event.report <- set_caption(Event.report, caption = "Luchse, die in den 60 Nächten des deterministischen Durchgangs fotografiert wurden. Ein Ereignis umfasst alle Bilder eines Luchsindividuums am selben Standort, welche weniger als 30 Minuten auseinander liegen. Bekannt seit: Jahr des ersten Nachweises. Mutter: Mutter von selbständigen Luchsen, sofern bekannt. Juvenil(e): Jungtiere von selbständigen Luchsen, sofern bekannt. Kanton(e): Kantone, in welchen sie während des Durchgangs fotografiert wurden. **Fett** hervorgehoben: Luchse, die während des Durchgangs zum ersten Mal nachgewiesen wurden.",autonum = officer::run_autonum(
   seq_id = "table",
   pre_label = "Tab. ",
   post_label = ". ",
@@ -429,20 +440,20 @@ txt.juv<-"Tous les juvéniles photographiés ont pu être associé à leur mère
 }
 
 if(Language== "DE"){
- txt.juv<-"Folgende(r) Jugendliche(r) ohne bekannte Mutter erscheint/erscheinen nicht in der Tabelle: "
+ txt.juv<-"Folgende(r) Jungluchse(r) ohne bekannte Mutter erscheint/erscheinen nicht in der Tabelle: "
 
 if(length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID])>0){
  for(i in 1:length(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID])){
   
  txt.juv<- paste(txt.juv,
-    Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID][i]," (N Bilder = ",
+    Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID][i]," (Anzahl Bilder = ",
       length(Data[Data$id_individual==Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother=="",ID][i],file_name]),
     ") ",sep="")
 
   } 
 }else{
   
-txt.juv<-"Von allen fotografierten Jungtieren konnten die Mutter eruiert werden somit erscheinen alle Jungtiere in der Tabelle."
+txt.juv<-"Von allen fotografierten Jungtieren konnte die Mutter eruiert werden. Somit erscheinen alle Jungtiere in der Tabelle."
 
 } 
 }
@@ -516,7 +527,7 @@ ggplot2::ggsave("Plot_Opp_Mon.jpeg",plot=Plot.Opp.Mon,
                     width = 16.5,
                     height = 20)
 
-# -- Plot function Monitoring Opp
+# -- Plot function Other species (used in appendix)
 
 Plot_KORA_Report<-function(Species){
   #Import shapefile compartment
@@ -765,6 +776,7 @@ Plot_KORA_Report_2_SP<-function(Species1,Species2){
 #Plot_KORA_Report_2_SP("Lynx lynx","Canis lupus")
 
 #dev.off()
+
 
 ```
 
@@ -1366,7 +1378,7 @@ par(mar=c(4,3,1,0))
      xaxt='n',las=1,cex.lab=0.8,cex.axis=0.8,pch=19,cex=1.5,lwd=1.5,
      xlim=c(1,20),
      #ylim based on period 5 in case higher:
-     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative)))) 
+     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10)) 
   axis(side=1,at=c(1,5,10,15,20),labels = c(1,5,10,15,20),cex.axis=0.8)
   mtext(side=1,"Occasions", line= 2,cex=0.8)
   mtext(side=2,"Captures", line= 2,cex=0.8)
@@ -1374,7 +1386,7 @@ par(mar=c(4,3,1,0))
   plot(Occ.table.plot.3$SUM.occasion.cumulative, type="o", 
      xlab = NA,ylab=NA,pch=17,
      axes=FALSE,lwd=1.5,cex=1.5,
-     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))))
+     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
   legend("topleft",paste("Closure Test: Otis et al. (1978), p=",round(closure.result.3$Otis$p,3),
 "
 Occasion = 3 jours
@@ -1385,7 +1397,7 @@ par(mar=c(4,0.5,1,0.5))
      xlab=NA,ylab="Captures",col="blue",
      xaxt='n',las=1,cex.lab=0.8,cex.axis=0.8,pch=19,cex=1.5,lwd=1.5,
      axes=FALSE,
-     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))))
+     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
   box()
   axis(side=1,at=c(1:12),labels = c(1:12),cex.axis=0.8)
   mtext(side=1,"Occasions", line= 2,cex=0.8)
@@ -1393,7 +1405,7 @@ par(mar=c(4,0.5,1,0.5))
   plot(Occ.table.plot.5$SUM.occasion.cumulative, type="o", 
      xlab = NA,ylab=NA,pch=17,
      axes=FALSE,lwd=1.5,cex=1.5,
-     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))))
+     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
   legend("topleft",paste("Closure Test: Otis et al. (1978), p=",round(closure.result.5$Otis$p,3),
 "
 Occasion = 5 jours
@@ -1417,14 +1429,14 @@ if(Period.selected==3){
      tck=-0.01,
      xlim=c(1,20),
      #ylim based on period 5 in case higher:
-     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative)))) 
+     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10)) 
   
   axis(side=1,at=c(1:20),labels = c(1:20),cex.axis=0.85,tck=-0.01)
   par(new=TRUE)
   plot(Occ.table.plot.3$SUM.occasion.cumulative, type="o", 
      xlab = NA,ylab=NA,pch=17,
      axes=FALSE,lwd=1.5,cex=1.5,
-     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))))
+     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
   grid(NA,NULL,lwd=1)
   
   if(Language=="FR"){
@@ -1456,13 +1468,13 @@ if(Period.selected==5){
      tck=-0.01,
      xlim=c(1,12),
      #ylim based on period 5 in case higher:
-     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative)))) 
+     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10)) 
   axis(side=1,at=c(1:12),labels = c(1:12),cex.axis=1,tck=-0.01)
   par(new=TRUE)
   plot(Occ.table.plot.5$SUM.occasion.cumulative, type="o", 
      xlab = NA,ylab=NA,pch=17,
      axes=FALSE,lwd=1.5,cex=1.5,
-     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))))
+     xlim=c(1,12),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
   grid(NA,NULL,lwd=1)
   
   if(Language=="FR"){
@@ -1516,15 +1528,15 @@ for(i in 1:length(History.comparaison$Compartment)){
   History.comparaison[i,"IC95"]<-paste("(",as.numeric(substr(list.comp, 7, 10)),"-",as.numeric(substr(list.comp, 12, 15)),")",sep="")
   
   }else{
-    if(Language=="FR"){History.comparaison[i,"Winter"]<-"Pas de session"}
-    if(Language=="DE"){History.comparaison[i,"Winter"]<-"Kein Durchgang"}
+    if(Language=="FR"){History.comparaison[i,"Winter"]<-"-"}
+    if(Language=="DE"){History.comparaison[i,"Winter"]<-"-"}
     }
 
 }
 
 #Compute current values
 
-Current<-data.table(Year=paste(min(year(occasions)),max(year(occasions)),sep="/"),
+Current<-data.table(Year=paste(juv.year,max(year(occasions)),sep="/"),
                     Density=Density.surface.favorable, 
                     Min95=Density.surface.favorable.min95,
                     Max95=Density.surface.favorable.max95)
@@ -1559,6 +1571,9 @@ History.comparaison$Density<-NULL
 names(History.comparaison)[5]<-"Density"
 History.comparaison<-History.comparaison[,c("COMPID","Compartment","Winter","Density","IC95")]
 
+#Change NA to "-" in density column:
+History.comparaison[History.comparaison$Density=="NA","Density"]<-"-"
+
 #Set name columns (FR/DE)
 if(Language=="FR"){
   names(History.comparaison)<-c("ID Comp.","Aire de référence","Hiver","Densité","IC 95% ")
@@ -1584,7 +1599,7 @@ if(Language=="FR"){
 }
 
 if(Language=="DE"){
-  History.comparaison <- set_caption(History.comparaison, caption = "Für jedes der 16 offiziellen Referenzgebiete wird die letzte Schätzung der Luchsdichte (selbständige Luchse pro 100 km^2^ geeignetem Habitat) mit dem 95 %-Konfidenzintervall angegeben, außer für die Gebiete, in denen noch kein Durchgang stattgefunden hat. Die Dichten sind in absteigender Reihenfolge aufgeführt. **Fett**: Werte des in diesem Bericht behandelten Durchgangs. Die Teil-Kompartimente sind in Abb. 1 kartografisch dargestellt.",autonum = officer::run_autonum(
+  History.comparaison <- set_caption(History.comparaison, caption = "Für jedes der 16 offiziellen Referenzgebiete wird die letzte Schätzung der Luchsdichte (selbständige Luchse pro 100 km^2^ geeignetem Habitat) mit dem 95 %-Konfidenzintervall angegeben, außer für die Gebiete, in denen noch kein Durchgang stattgefunden hat. Die Dichten sind in absteigender Reihenfolge aufgeführt. **Fett**: Werte des in diesem Bericht behandelten Durchgangs. Die Teil-Kompartimente sind in der Abb. 1 kartografisch dargestellt.",autonum = officer::run_autonum(
   seq_id = "table",
   pre_label = "Tab. ",
   post_label = ". ",
@@ -1598,7 +1613,7 @@ if(Language=="DE"){
 #Create footnote:
 if(Language=="FR"){
   History.comparaison<- footnote( History.comparaison, i = line.NA,j=5,
-            value = as_paragraph("NA figure lorsque l’abondance et par la même la précision n’ont pas pu être estimées au moyen de la méthode de capture-recapture photographique car le nombre de lynx est trop faible."),ref_symbols = c("*"),part = "body")
+            value = as_paragraph("NA figure lorsque l’abondance et par la même la précision n’ont pas pu être estimées au moyen de la méthode de capture-recapture photographique, car le nombre de lynx est trop faible."),ref_symbols = c("*"),part = "body")
 }
 
 if(Language=="DE"){
@@ -1624,11 +1639,14 @@ History<-fread("Density_KORA_Historic_Values.csv",header = TRUE,select=c("Year",
 
 History<-na.omit(History,cols = as.character(Compartment))
 
+#Split historic values into columns:
+#Warnings are produced if first session ever in area (normal)
+suppressWarnings(
 for(i in 1:length(History$Year)){
   History[i,"Density"]<-as.numeric(substr(as.character((History[i,2])), 1, 4))
   History[i,"Min95"]<-as.numeric(substr(as.character((History[i,2])), 7, 10))
   History[i,"Max95"]<-as.numeric(substr(as.character((History[i,2])), 12, 15))
-}
+})
 
 # Add current Monitoring values to history plot:
 #Object current is created in Density comparaison
@@ -1678,7 +1696,6 @@ ggplot2::ggsave("History_denisty_plot.jpeg",plot=History.plot,
 
 #Import shapefile compartment
 Komp <- sf::read_sf(dsn = "MAP_Data/Luchs_Komp_21_07_2015_new.shp")
-
 
 # -- Altitude layer #
 Alt <- raster::raster("MAP_Data/CHHS.TIF")
@@ -1751,18 +1768,20 @@ map<-ggplot2::ggplot() +
   ggplot2::geom_tile(data = Suitable_df , ggplot2::aes(x = x, y = y),fill="yellowgreen", alpha = 0.4)+
   #Suitable Raster LIE
   ggplot2::geom_sf(data=Suitable_LIE$geometry,fill="yellowgreen",colour=NA, alpha = 0.4)+
-  #Polygon Compartment all
+  #Polygon Compartment all without Rohne Nord
   ggplot2::geom_sf(data=Komp$geometry,colour = "black",fill="NA",lwd=0.6)+
   #Polygon Compartment
   ggplot2::geom_sf(data=Komp$geometry[Compartment],fill="white", alpha = 0.6)+
   #Lakes
   ggplot2::geom_sf(data=Lakes,fill="#56B4E9")+
   #Reference Area all
-  ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill=NA,lwd=0.5)+
+  ggplot2::geom_sf(data=Rcompartment,col="darkblue",fill="deepskyblue1",lwd=0.5,alpha=0.1)+
   #Reference Area
   ggplot2::geom_sf(data=Rcompartment[Refarea,],col="darkblue",fill="blue",lwd=1.3,alpha=0.2)+
   #Polygon Compartment all text
   ggplot2::geom_sf_text(data=Komp,ggplot2::aes(label =  Nummer))
+ 
+
 
 
   #Theme
@@ -1787,6 +1806,10 @@ map<-ggplot2::ggplot() +
   map<-map+
   ggplot2::annotation_custom(g, xmin=study_area[1]@bbox[1,2]-40000, xmax=study_area[1]@bbox[1,2],
                                ymin=study_area[1]@bbox[2,1], ymax=study_area[1]@bbox[2,1]+40000)
+  
+  
+  
+
   
   
   ggplot2::ggsave("Plot_Introduction_Compartment.jpeg",plot=map,
@@ -1880,8 +1903,8 @@ ggplot2::geom_tile(data = Suitable_df , ggplot2::aes(x = x, y = y),fill="yellowg
 ggplot2::geom_polygon(data = Komp@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
                                colour="black", fill="white", alpha=0.4, lwd=1.1)+
 #Refarea
-ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat),
-                               colour="darkblue", fill=NA, alpha=1, lwd=1.1)+
+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
+                              col="darkblue",fill="blue",lwd=1.1,alpha=0.2)+
 #Points Sites
 ggplot2::geom_point(data=DataFULL,ggplot2::aes(x,y), col="white", pch=19,cex=2)+
       ggplot2::geom_point(data=DataFULL,ggplot2::aes(x,y),col="black", pch=1,cex=2)
@@ -2052,7 +2075,7 @@ if(month(min(Data$TIME))>5){
 #Build abstract (in 3 languages):
 AbstractDE<-capture.output(cat("Das  Fotofallen-Monitoring  des  Luchses  (*Lynx lynx*) im  Referenzgebiet ", Text.table[1,Refarea+1],"  wurde im Winter ", Wintername,"  während  60  Nächten, vom ", format(as.Date(Start), "%d.%m.%Y")," bis ", format(as.Date(Stop), "%d.%m.%Y")," durchgeführt. Die Fotofallen an den ", Sites," Standorten funktionierten während ", prettyNum(effective.TN, big.mark="'",decimal.mark=",")," der potentiellen ", prettyNum(potentially.TN, big.mark="'",decimal.mark=",")," Fallennächte (", gsub("[.]",",",sprintf("%.1f",round((effective.TN*100)/potentially.TN,1))),"%). Im Durchgang wurden während ", Event[ID=="Total",Event]," Ereignissen ", N.ind.lynx," selbständige Luchse an ", Event[ID=="Total",`N site`]," Standorten fotografiert. **Darüber hinaus wurden ", N.juv," Jungtier(e) aus mindestens ", length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))," Wurf/Würfen nachgewiesen.** Die Fang-Wiederfang Schätzung der Abundanz (95% Konfidenzintervall) nach dem Model M~", substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~ ergab ", Mark.Table.inline[which.best.model.selected,N]," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),") selbständige Luchse im Referenzgebiet, was einer Dichte von ", prettyNum(Density.surface.favorable,decimal.mark = ",")," (", prettyNum(Density.surface.favorable.min95,decimal.mark = ",")," - ", prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") selbständigen Luchsen pro 100 km^2^ geeignetem Habitat entspricht. ",DifferentDE,sep = ""))
 
-AbstractFR<-capture.output(cat("Le monitoring du lynx (*Lynx lynx*) par piège-photographique dans l'aire de référence ", Text.table[7,Refarea+1]," durant l’hiver ", Wintername," a été effectué durant 60 nuits du ", format(as.Date(Start), "%d.%m.%Y")," au ",format(as.Date(Stop), "%d.%m.%Y"),". Les pièges-photos placés auprès des ", Sites," sites ont fonctionné pendant ", prettyNum(effective.TN, big.mark="'",decimal.mark=",")," des ", prettyNum(potentially.TN, big.mark="'",decimal.mark=",")," nuits potentielles (",  gsub("[.]",",",sprintf("%.1f",round((effective.TN*100)/potentially.TN,1))),"%). Pendant la session, ", Event[ID=="Total",Event]," évènements auprès de ", Event[ID=="Total",`N site`]," sites correspondant à ", N.ind.lynx," lynx indépendants ont été répertoriés. **De plus, ", N.juv," juvénile(s) d'au moins ", length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))," portée(s) ont également été détectés.** L’estimation de l’abondance (intervalle de confiance de 95%) par le modèle de capture-recapture M~", substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~ était de ", Mark.Table.inline[which.best.model.selected,N]," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),") lynx indépendants ce qui correspond à une densité de ", prettyNum(Density.surface.favorable,decimal.mark = ",")," (", prettyNum(Density.surface.favorable.min95,decimal.mark = ",")," - ", prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ d’habitat favorables. ",DifferentFR,sep = ""))
+AbstractFR<-capture.output(cat("Le monitoring du lynx (*Lynx lynx*) par piège-photographique dans l'aire de référence ", Text.table[7,Refarea+1]," durant l’hiver ", Wintername," a été effectué durant 60 nuits du ", format(as.Date(Start), "%d.%m.%Y")," au ",format(as.Date(Stop), "%d.%m.%Y"),". Les pièges-photos placés auprès des ", Sites," sites ont fonctionné pendant ", prettyNum(effective.TN, big.mark="'",decimal.mark=",")," des ", prettyNum(potentially.TN, big.mark="'",decimal.mark=",")," nuits potentielles (",  gsub("[.]",",",sprintf("%.1f",round((effective.TN*100)/potentially.TN,1))),"%). Pendant la session, ", Event[ID=="Total",Event]," événements auprès de ", Event[ID=="Total",`N site`]," sites correspondant à ", N.ind.lynx," lynx indépendants ont été répertoriés. **De plus, ", N.juv," juvénile(s) d'au moins ", length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))," portée(s) ont également été détectés.** L’estimation de l’abondance (intervalle de confiance de 95%) par le modèle de capture-recapture M~", substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~ était de ", Mark.Table.inline[which.best.model.selected,N]," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),") lynx indépendants ce qui correspond à une densité de ", prettyNum(Density.surface.favorable,decimal.mark = ",")," (", prettyNum(Density.surface.favorable.min95,decimal.mark = ",")," - ", prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ d’habitat favorables. ",DifferentFR,sep = ""))
 
 AbstractEN<-capture.output(cat("The monitoring of the Eurasian  lynx  (*Lynx lynx*)  by means of camera traps in the reference area ", Text.table[8,Refarea+1]," during  winter ", Wintername," was  carried  out  during 60  nights,  from  ", format(as.Date(Start), "%d.%m.%Y"),"  to  ", format(as.Date(Stop), "%d.%m.%Y"),". The camera traps at the ", Sites," locations operated during ", prettyNum(effective.TN, big.mark=",",decimal.mark=".")," of the potential ", prettyNum(potentially.TN, big.mark=",",decimal.mark=".")," trap nights (", sprintf("%.1f",round((effective.TN*100)/potentially.TN,1)),"%). During the session, ", Event[ID=="Total",Event]," events of ", N.ind.lynx," independent lynx at ", Event[ID=="Total",`N site`]," sites  were recorded. **In addition, ", N.juv," juvenile(s) of at least ", length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))," litter(s) were detected.** The capture-recapture estimate of abundance (95% confidence interval) under model M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~ was ", Mark.Table.inline[which.best.model.selected,N]," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),") independent lynx, which corresponds to a density of  ", Density.surface.favorable," (", Density.surface.favorable.min95," - ", Density.surface.favorable.max95,") independent lynx per 100 km^2^ of suitable habitat. ",DifferentEN,sep = ""))
 
@@ -2126,7 +2149,7 @@ cat("
 ```{r Introduction FR,echo=FALSE,results='asis',eval=Language=="FR"}
 cat("### Introduction \n")
 
-cat("Le monitoring déterministe du lynx par pièges-photos a été développé en Suisse à partir de 1998 (Laass 1999) dans le nord-ouest des Alpes. Dans les sous-compartiments de gestion (voir [Plan Lynx Suisse OFEV 2016](https://www.kora.ch/uploads/media/F_Plan_Lynx_2016_Revision_des_annexes_2019.pdf)) dont l'habitat favorable pour le lynx est en grande partie colonisé de façon permanente par l’espèce, un suivi déterministe par pièges-photos est effectué dans des aires dites de référence. Ces dernières sont choisies de sorte à ce qu’elles soient représentatives pour les sous-compartiments de gestion donnés (Fig. 1\ua0; voir [ici](https://www.kora.ch/index.php?id=240&L=2) pour plus d’informations). Au sein de chaque aire de référence des pièges-photos sont répartis de manière systématique et laissé en place pendant une période donnée, dans notre cas généralement pendant 60 nuits. Ce genre de suivi est conduit tous les trois à quatre ans par le KORA avec l’aide des cantons afin d’estimer la taille et la densité de la population de lynx au moyen de la méthode dite de capture-recapture photographique qui est aujourd’hui une méthode de monitoring standard pour le suivi des espèces aux mœurs cryptiques dont les individus sont reconnaissables au moyen de marques naturelles (voir [ici](https://www.kora.ch/index.php?id=105&L=2) pour plus d’informations).
+cat("Le monitoring déterministe du lynx par pièges-photos a été développé en Suisse à partir de 1998 (Laass 1999) dans le nord-ouest des Alpes. Dans les sous-compartiments de gestion (voir [Plan Lynx Suisse OFEV 2016](https://www.kora.ch/uploads/media/F_Plan_Lynx_2016_Revision_des_annexes_2019.pdf)) dont l'habitat favorable pour le lynx est en grande partie colonisé de façon permanente par l’espèce, un suivi déterministe par pièges-photos est effectué dans des aires dites de référence. Ces dernières sont choisies de sorte qu’elles soient représentatives pour les sous-compartiments de gestion donnés (Fig. 1\ua0; voir [ici](https://www.kora.ch/index.php?id=240&L=2) pour plus d’informations). Au sein de chaque aire de référence, des pièges-photos sont répartis de manière systématique et laissés en place pendant une période donnée, dans notre cas généralement pendant 60 nuits. Ce genre de suivi est conduit tous les trois à quatre ans par le KORA avec l’aide des cantons afin d’estimer la taille et la densité de la population de lynx au moyen de la méthode dite de capture-recapture photographique qui est aujourd’hui une méthode de monitoring standard pour le suivi des espèces aux mœurs cryptiques dont les individus sont reconnaissables au moyen de marques naturelles (voir [ici](https://www.kora.ch/index.php?id=105&L=2) pour plus d’informations).
 
 Ce rapport présente les résultats de la session déterministe dans l'aire de référence ",Text.table[7,Refarea+1]," au sein du sous-compartiment ",names(Text.table)[Refarea+1]," pour l’hiver ", Wintername,". Les résultats des sessions précédentes sont disponibles [en ligne](https://www.kora.ch/index.php?id=345&L=2) sur le site du KORA.
 \n",sep="")
@@ -2142,10 +2165,10 @@ cat("### Einleitung \n")
 
 cat("Das deterministische Luchsmonitoring mit Fotofallen wurde in der Schweiz ab 1998 (Laass 1999) in den Nordwestalpen entwickelt. In Teil-Kompartimenten (siehe [Konzept  Luchs Schweiz BAFU 2016](https://www.kora.ch/uploads/media/D_Konzept_Luchs_Schweiz_2016_Revision_Anhaenge_2019.pdf)), in denen das geeignete Luchshabitat weitgehend und dauerhaft von der Art besiedelt ist, wird ein deterministisches Fotofallen-Monitoring in sogenannten Referenzgebieten durchgeführt. Diese sind so gewählt, dass sie für die jeweiligen Teil-Kompartimente repräsentativ sind (Abb. 1; vgl. [hier](https://www.kora.ch/index.php?id=240&L=0) für weitere Informationen). In jedem Referenzgebiet werden die Fotofallen systematisch verteilt und für einen bestimmten Zeitraum, in unserem Fall in der Regel für 60 Nächte, stehen gelassen. Diese Untersuchungen werden alle drei bis vier Jahre von KORA mit Hilfe der Kantone durchgeführt, um die Dichte und Abundanz der Luchspopulation mittels der so genannten fotografischen Fang-Wiederfang-Methode zu schätzen. Dies ist heute eine Standard-Monitoring-Methode für kryptische Arten, deren Individuen durch natürliche Markierungen erkennbar sind (vgl. [hier](https://www.kora.ch/index.php?id=105&L=0) für weitere Informationen)
     
-Dieser Bericht präsentiert die Ergebnisse des deterministischen Durchgangs im Referenzgebiet ",Text.table[1,Refarea+1]," innerhalb des Teil-Kompartiments ",names(Text.table)[Refarea+1]," für den Winter ", Wintername ,". Die Ergebnisse der vorangegangenen Durchgänge sind [online](https://www.kora.ch/index.php?id=345&L=0) auf der KORA-Website verfügbar.
+Dieser Bericht präsentiert die Ergebnisse des deterministischen Durchgangs im Referenzgebiet ",Text.table[1,Refarea+1]," innerhalb des Teil-Kompartiments ",names(Text.table)[Refarea+1]," für den Winter ", Wintername ,". Die Ergebnisse vorangegangener Durchgänge sind [online](https://www.kora.ch/index.php?id=345&L=0) auf der KORA-Website verfügbar.
 \n",sep="")
 
-cat("![**Abb. 1.** Verteilung der Referenzgebiete (blaue Polygone) innerhalb der 16 Teilkompartimente (schwarze Polygone). Das geeignete Luchshabitat (hellgrün) ist definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004). Das in diesem Durchgang untersuchte Referenzgebiet (",Text.table[1,Refarea+1],") sowie dessen Teil-Kompartiment (",names(Text.table)[Refarea+1],"), sind farblich hervorgehoben.](Plot_Introduction_Compartment.jpeg) 
+cat("![**Abb. 1.** Verteilung der Referenzgebiete (blaue Polygone) innerhalb der 16 Teil-Kompartimente (schwarze Polygone). Das geeignete Luchshabitat (hellgrün) ist definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004). Das in diesem Durchgang untersuchte Referenzgebiet (",Text.table[1,Refarea+1],") sowie dessen Teil-Kompartiment (",names(Text.table)[Refarea+1],"), sind farblich hervorgehoben.](Plot_Introduction_Compartment.jpeg) 
 
 \n",sep="")
 
@@ -2156,9 +2179,9 @@ cat("![**Abb. 1.** Verteilung der Referenzgebiete (blaue Polygone) innerhalb der
 ```{r Mat & Met FR,echo=FALSE,results='asis',eval=Language=="FR"}
 cat("### Matériel et Méthode \n")
 
-cat("Au total,",Sites," sites choisis avec l’aide des surveillants de la faune ont été échantillonnés durant 60 nuits du ",format(as.Date(Start), "%d.%m.%Y")," au ", format(as.Date(Stop), "%d.%m.%Y")," à l'aide de ",Sites*2," pièges-photos (2 par sites) placés principalement le long de chemins forestiers et pédestres. Si un site a été déplacé lors de la session, l'ancien site ainsi que le nouveau sont pris en compte dans la représentation cartographique.",Text.table[6,names(Text.table)[Refarea+1]],"
+cat("Au total,",Sites," sites choisis avec l’aide des surveillants de la faune ont été échantillonnés durant 60 nuits du ",format(as.Date(Start), "%d.%m.%Y")," au ", format(as.Date(Stop), "%d.%m.%Y")," à l'aide de ",Sites*2," pièges-photos (2 par sites) placés principalement le long de routes forestières et de chemins pédestres. Si un site a été déplacé lors de la session, l'ancien site ainsi que le nouveau sont pris en compte dans la représentation cartographique.",Text.table[6,names(Text.table)[Refarea+1]],"
     
-L’aire de référence présente une superficie de ", round(Refareashp$AREA_1[Refarea]/1000000,0)," km^2^, dont ", favorable," km^2^ d'habitat favorable au lynx (Zimmermann 2004\ua0; Zimmermann & Breitenmoser 2007) (Fig.2). L’unité de la taille de la population correspond au nombre de lynx âgés de plus d’un an (lynx indépendants), c’est-à-dire les lynx adultes résidents et les lynx subadultes qui se dispersent. Les lynx juvéniles sont aussi identifiés, mais ne sont pas pris en compte dans l’estimation d’abondance et de densité à cause de leur faible taux de détection et de leur fort taux de disparition (mortalité et dispersion). ")
+L’aire de référence présente une superficie de ",  prettyNum(round(Refareashp$AREA_1[Refarea]/1000000,0), big.mark="'")," km^2^, dont ", prettyNum(favorable, big.mark="'")," km^2^ d'habitat favorable au lynx (Zimmermann 2004) (Fig.2). L’unité de la taille de la population correspond au nombre de lynx âgés de plus d’un an (lynx indépendants), c’est-à-dire les lynx adultes résidents et les lynx subadultes qui se dispersent. Les lynx juvéniles sont aussi identifiés, mais ne sont pas pris en compte dans l’estimation d’abondance et de densité à cause de leur faible taux de détection et de leur fort taux de disparition (mortalité et dispersion). ")
 
 if(JuvasMother==TRUE){
   cat("**Ils sont toutefois comptabilisés comme une capture de leur mère respective dans l'historique de capture.** 
@@ -2172,7 +2195,7 @@ if(JuvasMother==FALSE){
       \n")
 }
 
-cat("![**Fig. 2.** Répartitions des sites (disques blancs) dans l'aire de référence ",Text.table[7,names(Text.table)[Refarea+1]]," (polygone bleu) au sein du sous-compartiment de gestion ",names(Text.table)[Refarea+1]," (polygone noir). En vert clair l’habitat favorable du lynx défini par des modèles d’habitat (Zimmermann 2004).](Plot_Introduction.jpeg)")
+cat("![**Fig. 2.** Répartitions des sites (disques blancs) dans l'aire de référence ",Text.table[7,names(Text.table)[Refarea+1]]," (polygone bleu) au sein du sous-compartiment de gestion ",names(Text.table)[Refarea+1]," (polygone noir). En vert clair l’habitat favorable du lynx défini par un modèle d’habitat (Zimmermann 2004).](Plot_Introduction.jpeg)")
 
 
 ```
@@ -2180,13 +2203,13 @@ cat("![**Fig. 2.** Répartitions des sites (disques blancs) dans l'aire de réf�
 ```{r Mat & Met DE,echo=FALSE,results='asis',eval=Language=="DE"}
 cat("### Material und Methode \n")
 
-cat("Insgesamt wurden",Sites," Standorte mit Hilfe von Wildhütern ausgewählt und mit ",Sites*2," Fotofallen bestückt (2 pro Standort). Die Fotofallen liefen während 60 Nächten vom ",format(as.Date(Start), "%d.%m.%Y")," bis ",format(as.Date(Stop), "%d.%m.%Y")," und waren hauptsächlich entlang von Wald- und Wanderwegen aufgestellt. Wenn ein Standort während dem Durchgang versetzt wurde, werden sowohl der alte als auch der neue Standort in den kartographischen Darstellungen dieses Berichts berücksichtigt.",Text.table[5,names(Text.table)[Refarea+1]], "
+cat("Insgesamt wurden",Sites," Standorte mit Hilfe der Wildhüter ausgewählt und mit ",Sites*2," Fotofallen bestückt (2 pro Standort). Die Fotofallen liefen während 60 Nächten vom ",format(as.Date(Start), "%d.%m.%Y")," bis ",format(as.Date(Stop), "%d.%m.%Y")," und waren hauptsächlich entlang von Forstrasse und Wanderwegen aufgestellt. Wenn ein Standort während dem Durchgang versetzt wurde, werden sowohl der alte als auch der neue Standort in den kartographischen Darstellungen dieses Berichts berücksichtigt.",Text.table[5,names(Text.table)[Refarea+1]], "
 
-Das Referenzgebiet hat eine Fläche von ",round(Refareashp$AREA_1[Refarea]/1000000,0)," km^2^, davon sind ",favorable," km^2^ geeignetes Luchshabitat (Zimmermann 2004) (Abb.2). Die Einheit der Populationgrösse ist die Anzahl der Luchse, die älter als ein Jahr sind (selbständige). Das heisst residente adulte Luchse und noch nicht sesshafte subadulte Luchse. Jungluchse werden zwar ebenfalls individuell bestimmt, aber aufgrund ihrer geringen Erfassbarkeit und ihrer hohen Verschwinderate (Mortalität und Dispersal) nicht  individuell in die Schätzungen von Abundanz und Dichte mit einbezogen. ")
+Das Referenzgebiet hat eine Fläche von ",prettyNum(round(Refareashp$AREA_1[Refarea]/1000000,0), big.mark="'")," km^2^, davon sind ",prettyNum(favorable, big.mark="'")," km^2^ geeignetes Luchshabitat (Zimmermann 2004) (Abb.2). Die Einheit der Populationgrösse ist die Anzahl der Luchse, die älter als ein Jahr sind (selbständige Luchse). Das heisst residente adulte Luchse und noch nicht sesshafte subadulte Luchse. Jungluchse werden zwar ebenfalls individuell bestimmt, aber aufgrund ihrer geringen Erfassbarkeit und ihrer hohen Verschwinderate (Mortalität und Dispersal) nicht  individuell in die Schätzungen von Abundanz und Dichte mit einbezogen. ")
 
 
 if(JuvasMother==TRUE){
-  cat("**Sie werden jedoch in der Fanghistorie als Fang der jeweiligen Mutter gezählt.** 
+  cat("**Sie werden jedoch in der Fanggeschichte als Fang der jeweiligen Mutter gezählt.** 
       
       \n")
 }
@@ -2197,7 +2220,7 @@ if(JuvasMother==FALSE){
       \n")
 }
 
-cat("![**Abb. 2.** Verteilung der Standorte (weiße Kreise) im Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) innerhalb der Teil-Kompartiment ",names(Text.table)[Refarea+1]," (schwarzes Polygon). In hellgrün das geeignete Luchshabitat, definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004).](Plot_Introduction.jpeg)")
+cat("![**Abb. 2.** Verteilung der Standorte (weiße Kreise) im Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) innerhalb des Teil-Kompartiments ",names(Text.table)[Refarea+1]," (schwarzes Polygon). In hellgrün das geeignete Luchshabitat, definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004).](Plot_Introduction.jpeg)")
 
 ```
 
@@ -2211,19 +2234,19 @@ cat("### Résultats et Discussion \n")
 PercentTN<-round((effective.TN*100)/potentially.TN,1)
 
 if(PercentTN>=95){
-  ValuePercentTN<-"**Cette valeur se trouve à la limite supérieure de celles observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
+  ValuePercentTN<-" **Cette valeur se trouve à la limite supérieure de celles observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
 }
 
 if(PercentTN<95 & PercentTN>90){
-  ValuePercentTN<-"**Cette valeur est raisonnable et se trouve dans la fourchette des valeurs observées dans d’autres études avec les pièges-photographiques où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
+  ValuePercentTN<-" **Cette valeur est raisonnable et se trouve dans la fourchette des valeurs observées dans d’autres études avec les pièges-photographiques où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
 }
 
 if(PercentTN<90 & PercentTN>=84.2){
-  ValuePercentTN<-"**Cette valeur se trouve à la limite inférieure des valeurs observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
+  ValuePercentTN<-" **Cette valeur se trouve à la limite inférieure des valeurs observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
 }
 
 if(PercentTN<84.2){
-  ValuePercentTN<-"**Cette valeur est inférieure aux valeurs observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
+  ValuePercentTN<-" **Cette valeur est inférieure aux valeurs observées dans d’autres études avec les pièges-photos où nous avions des valeurs comprises entre 84,2% (Nord du Jura, hiver 2006/07) et 99,7% (Nord-Ouest des Alpes, hiver 2015/16).**"
 }
 
 cat("La durée d’échantillonnage potentielle était de ",prettyNum(potentially.TN, big.mark="'")," nuits de captures. **Le vol, le vandalisme, des problèmes techniques, des erreurs de manipulation et la neige** ont ramené l’effort d’échantillonnage à ", prettyNum(effective.TN, big.mark="'")," nuits-pièges effectives, soit ", gsub("[.]",",",sprintf("%.1f",PercentTN)) ,"% du potentiel.",ValuePercentTN,"**Les sites positifs sont répartis de façon uniforme sur l'ensemble de la zone d'étude (Fig. 3) (Describe repartition).** 
@@ -2231,7 +2254,7 @@ cat("La durée d’échantillonnage potentielle était de ",prettyNum(potentiall
 \n")
 
 
-cat("![**Fig. 3.** Aire de référence ",Text.table[7,names(Text.table)[Refarea+1]]," (polygone bleu) avec la distribution spatiale des lynx (Polygone Convexe Minimum + zone tampon) photographiés durant l'ensemble de la session déterministe. Bleu\ua0: mâle (zone tampon de 1,4 km), rose\ua0: femelle (1,2 km), noir\ua0: sexe inconnu (1 km). Disques blancs avec un point noir\ua0: sites où au moins une photo de lynx indépendant a été prise\ua0; **disques blancs avec un point rouge\ua0: sites où au moins une photo de lynx a été prise, mais l'individu n'a pas pu être identifié avec certitude\ua0; disques blancs avec un point vert\ua0: sites où au moins une photo de lynx a été prise, mais l'individu était un juvénile**\ua0; disques blancs\ua0: pas de photo de lynx.](Map_Report.jpeg)",sep="")
+cat("![**Fig. 3.** Aire de référence ",Text.table[7,names(Text.table)[Refarea+1]]," (polygone bleu) avec la distribution spatiale des lynx (Polygone Convexe Minimum + zone tampon) photographiés durant l'ensemble de la session déterministe. Bleu\ua0: mâle (zone tampon de 1,4 km), rose\ua0: femelle (1,2 km), noir\ua0: sexe inconnu (1 km). Disques blancs avec un point noir\ua0: sites où au moins une photo d’un individu indépendant a été prise\ua0; **disques blancs avec un point rouge\ua0: sites où au moins une photo de lynx a été prise, mais l'individu n'a pas pu être identifié avec certitude\ua0; disques blancs avec un point vert\ua0: sites où au moins une photo de lynx a été prise, mais l'individu était un juvénile**\ua0; disques blancs\ua0: pas de photo de lynx.](Map_Report.jpeg)",sep="")
 
 
 ```
@@ -2242,26 +2265,26 @@ cat("### Resultate und Diskussion \n")
 PercentTN<-round((effective.TN*100)/potentially.TN,1)
 
 if(PercentTN>=95){
-  ValuePercentTN<-"** Dieser Wert liegt im oberen Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
+  ValuePercentTN<-" **Dieser Wert liegt im oberen Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
 }
 
 if(PercentTN<95 & PercentTN>90){
-  ValuePercentTN<-"** Dieser Wert liegt im Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
+  ValuePercentTN<-" **Dieser Wert liegt im Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
 }
 
 if(PercentTN<90 & PercentTN>=84.2){
-  ValuePercentTN<-"** Dieser Wert liegt im unteren Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
+  ValuePercentTN<-" **Dieser Wert liegt im unteren Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
 }
 
 if(PercentTN<84.2){
-  ValuePercentTN<-"** Dieser Wert liegt unter den Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
+  ValuePercentTN<-" **Dieser Wert liegt unter den Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,7% (Nordwestalpen, Winter 2015/16) hatten.**"
 }
 
-cat("Die potenzielle Anzahl der Fallennächte lag bei ",prettyNum(potentially.TN, big.mark="'"),". **Diebstahl, Vandalismus, technische Probleme, Bedienungsfehler und Schneefall** reduzierten den Aufwand der Probeentnahme auf ",prettyNum(effective.TN, big.mark="'")," tatsächliche Fallennächte, was ",gsub("[.]",",",sprintf("%.1f",PercentTN)),"% des Potenzials entspricht.",ValuePercentTN,"** Die positiven Standorte sind gleichmäßig über das gesamte Untersuchungsgebiet verteilt (Abb. 3) (Beschreibung der Verteilung).** 
+cat("Die potenzielle Anzahl der Fallennächte lag bei ",prettyNum(potentially.TN, big.mark="'"),". **Diebstahl, Vandalismus, technische Probleme, Bedienungsfehler und Schneefall** reduzierten den Aufwand der Probeentnahme auf ",prettyNum(effective.TN, big.mark="'")," tatsächliche Fallennächte, was ",gsub("[.]",",",sprintf("%.1f",PercentTN)),"% des Potenzials entspricht.",ValuePercentTN," **Die positiven Standorte sind gleichmäßig über das gesamte Untersuchungsgebiet verteilt (Abb. 3) (Beschreibung der Verteilung).** 
 
 \n",sep="")
 
-cat("![**Abb. 3.** Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) mit räumlicher Verteilung von während dem Durchgang fotografierten Luchsen (Kleinste Konvexe Polygone + Pufferzone). Blau: Männchen (1,4 km Pufferzone), rosa: Weibchen (1,2 km), schwarz: unbekanntes Geschlecht (1 km). Weiße Kreise mit einem schwarzen Punkt: Standorte, an denen mindestens ein Foto eines selbständigen Luchses gemacht wurde; **weiße Kreise mit einem roten Punkt: Standorte, an denen lediglich mindestens ein Foto eines nicht individuell identifizierbaren Luchses gemacht wurde; weiße Kreise mit einem grünen Punkt: Standorte, an denen lediglich mindestens ein Foto eines  juvenilen Luchses gemacht wurde**; weiße Kreise ohne Punkt: Standorte ohne Luchsfotos.](Map_Report.jpeg)")
+cat("![**Abb. 3.** Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) mit räumlicher Verteilung von während dem Durchgang fotografierten Luchsen (kleinste Konvexpolygone + Pufferzone). Blau: Männchen (1,4 km Pufferzone), rosa: Weibchen (1,2 km), schwarz: unbekanntes Geschlecht (1 km). Weiße Kreise mit einem schwarzen Punkt: Standorte, an denen mindestens ein Foto eines selbständigen Luchses gemacht wurde; **weiße Kreise mit einem roten Punkt: Standorte, an denen lediglich mindestens ein Foto eines nicht individuell identifizierbaren Luchses gemacht wurde; weiße Kreise mit einem grünen Punkt: Standorte, an denen lediglich mindestens ein Foto eines juvenilen Luchses gemacht wurde**; weiße Kreise ohne Punkt: Standorte ohne Luchsfotos.](Map_Report.jpeg)")
 
 ```
 
@@ -2284,9 +2307,9 @@ as.character(paste('(',paste(Not.seen$ID,collapse = ', '),')',sep='')),
 
 \n")}
 
-cat("Un total de ",Event[ID=="Total",Event]," évènements ont été répertoriés au cours de la période d’échantillonnage de 60 nuits dans l’ensemble de l’aire de référence (Tab. 1). Ceux-ci ont été ramenés à",
+cat("Un total de ",Event[ID=="Total",Event]," événements ont été répertoriés au cours de la période d’échantillonnage de 60 nuits dans l’ensemble de l’aire de référence (Tab. 1). Ceux-ci ont été ramenés à",
 ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])
-," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieurs reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment, nous pouvons raisonnablement conclure que les lynx n'ont pas commencés à éviter les sites au cours de la période d'échantillonnage (Fig. 4). De plus une grande partie des lynx présents dans l’aire de référence ont dû être détectés vu que le nombre de lynx capturés se stabilise déjà à partir de la XXXXième occasion.** \n")
+," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieures reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment, nous pouvons raisonnablement conclure que les lynx n'ont pas commencé à éviter les sites au cours de la période d'échantillonnage (Fig. 4). De plus la majeure partie des lynx présents dans l’aire de référence ont été détectés vu que le nombre de lynx capturés se stabilise déjà à partir de la XXXXième occasion.** \n")
 
 
 
@@ -2362,14 +2385,14 @@ cat("#### Estimation de l'abondance et de la densité \n")
 model.descritption<-data.table(Model=c("0","b","h","t","bh"),
                                Description=c("**qui considère que la probabilité de capture est constante**", #M0
                       "**qui considère que la probabilité de capture varie dû à une réponse biologique**", #Mb
-                      "**qui considère que la probabilité de capture varie d'un individu à l'autre mais ne varie pas au cours du temps**", #Mh
+                      "**qui considère que la probabilité de capture varie d'un individu à l'autre**", #Mh
                       "**qui considère que la probabilité de capture varie en fonction du temps**",#Mt
                       "**qui considère que les individus ont des probabilités de capture différentes, qui changent après leur première capture**")) #Mbh
 
 model.descritption<-model.descritption[model.descritption$Model==substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),Description]
 
 
-cat("Le modèle ",paste("M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~",sep=""),", ",model.descritption,", explique au mieux les données. L’estimation de l’abondance (intervalle de confiance de 95%) par capture-recapture était de ",
+cat("Le modèle ",paste("M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~",sep=""),", ",model.descritption,", explique le mieux les données. L’estimation de l’abondance (intervalle de confiance de 95%) par capture-recapture était de ",
 paste(Mark.Table.inline[which.best.model.selected,N])," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),") lynx indépendants. Ainsi, ", prettyNum(as.numeric(sprintf("%.1f",round((length(Lynx.Table.Adult$ID)*100)/Mark.Table.inline[which.best.model.selected,N],1))),decimal.mark = ","),"% des lynx estimés ont effectivement été photographiés. 
 \n",sep="")
 
@@ -2383,7 +2406,7 @@ cat("#### Schätzung der Abundanz und Dichte \n")
 model.descritption<-data.table(Model=c("0","b","h","t","bh"),
                                Description=c("**bei dem davon ausgegangen wird, dass die Wahrscheinlichkeit des Fangens konstant ist**", #M0
                       "**bei dem davon ausgegangen wird, dass die Fangwahrscheinlichkeit aufgrund einer biologischen Reaktion variiert**", #Mb
-                      "**welches unterschiedliche individuelle, jedoch keine zeitlich schwankenden Fangwahrscheinlichkeiten zulässt**", #Mh
+                      "**welches unterschiedliche individuelle Fangwahrscheinlichkeiten zulässt**", #Mh
                       "**bei dem davon ausgegangen wird, dass die Wahrscheinlichkeit des Fangens mit der Zeit variiert**",#Mt
                       "**bei dem davon ausgegangen wird, dass Individuen unterschiedliche Fangwahrscheinlichkeiten haben, die sich nach ihrem ersten Fang ändern**")) #Mbh
 
@@ -2391,13 +2414,16 @@ model.descritption<-model.descritption[model.descritption$Model==substr(Mark.Tab
 
 
 cat("Das Modell ",paste("M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 2),"~",sep=""),", ",model.descritption,", erklärt die Daten am besten. Die resultierende geschätzte Abundanz (95% Konfidenzintervall) anhand dieses Fang-Wiederfang-Modells war ",
-paste(Mark.Table.inline[which.best.model.selected,N])," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),")  selbständige  Luchse, ", prettyNum(as.numeric(sprintf("%.1f",round((length(Lynx.Table.Adult$ID)*100)/Mark.Table.inline[which.best.model.selected,N],1))),decimal.mark = ","),"% der geschätzten Luchse wurden demnach tatsächlich fotografiert. 
+paste(Mark.Table.inline[which.best.model.selected,N])," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),")  selbständige  Luchse. ", prettyNum(as.numeric(sprintf("%.1f",round((length(Lynx.Table.Adult$ID)*100)/Mark.Table.inline[which.best.model.selected,N],1))),decimal.mark = ","),"% der geschätzten Luchse wurden demnach tatsächlich fotografiert. 
 \n", sep="")
 
 
 ```
 
 ```{r Results Part 4 FR,echo=FALSE,results='asis', eval=Language=="FR"}
+
+#Plot history plot or (if first session in area) write just the text.
+if(length(History$Year)>1){
 cat("La densité (intervalle de confiance de 95%) dans l’aire de référence était de ",
     prettyNum(Density.surface,decimal.mark = ",")," (",prettyNum(Density.surface.min95,decimal.mark = ","),"-",prettyNum(Density.surface.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ ou ",
       prettyNum(Density.surface.favorable,decimal.mark = ",")," (",prettyNum(Density.surface.favorable.min95,decimal.mark = ","),"-",prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ d’habitat favorable (Fig.5). 
@@ -2408,18 +2434,44 @@ cat("La densité (intervalle de confiance de 95%) dans l’aire de référence �
 cat("![**Fig. 5.** Evolution des densités de lynx indépendants pour 100 km^2^ d’habitat favorable (avec intervalle de confiance de 95%) dans l’aire de référence ",Text.table[7,Refarea+1],". En orange la session actuelle.
 
 \n](History_denisty_plot.jpeg)",sep="")
+}
+
+if(length(History$Year)==1){
+cat("La densité (intervalle de confiance de 95%) dans l’aire de référence était de ",
+    prettyNum(Density.surface,decimal.mark = ",")," (",prettyNum(Density.surface.min95,decimal.mark = ","),"-",prettyNum(Density.surface.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ ou ",
+      prettyNum(Density.surface.favorable,decimal.mark = ",")," (",prettyNum(Density.surface.favorable.min95,decimal.mark = ","),"-",prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") lynx indépendants pour 100 km^2^ d’habitat favorable. 
+    
+\n", sep="")
+  
+}
+
 ```
 
 ```{r Results Part 4 DE,echo=FALSE,results='asis', eval=Language=="DE"}
+
+#Plot history plot or (if first session in area) write just the text.
+if(length(History$Year)>1){
+  
 cat("Die Dichte (95% Konfidenzintervall) im Referenzgebiet betrug ",
     prettyNum(Density.surface,decimal.mark = ",")," (",prettyNum(Density.surface.min95,decimal.mark = ","),"-",prettyNum(Density.surface.max95,decimal.mark = ","),") selbständige Luchse pro 100 km^2^ oder ",
-      prettyNum(Density.surface.favorable,decimal.mark = ",")," (",prettyNum(Density.surface.favorable.min95,decimal.mark = ","),"-",prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") selbständige Luchse pro 100 km^2^ geeignetem Habitat (Abb.5). 
+      prettyNum(Density.surface.favorable,decimal.mark = ",")," (",prettyNum(Density.surface.favorable.min95,decimal.mark = ","),"-",prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") selbständige Luchse pro 100 km^2^ geeignetem Habitat (Abb. 5). 
     
 \n",sep="")
 
 cat("![**Abb. 5.** Entwicklung der Luchsdichte pro 100 km^2^ geeignetem Habitat (mit 95 % Konfidenzintervall) im Referenzgebiet ",Text.table[1,Refarea+1],". In orange der aktuelle Durchgang.
 
 \n](History_denisty_plot.jpeg)",sep="")
+
+}
+
+if(length(History$Year)==1){
+cat("Die Dichte (95% Konfidenzintervall) im Referenzgebiet betrug ",
+    prettyNum(Density.surface,decimal.mark = ",")," (",prettyNum(Density.surface.min95,decimal.mark = ","),"-",prettyNum(Density.surface.max95,decimal.mark = ","),") selbständige Luchse pro 100 km^2^ oder ",
+      prettyNum(Density.surface.favorable,decimal.mark = ",")," (",prettyNum(Density.surface.favorable.min95,decimal.mark = ","),"-",prettyNum(Density.surface.favorable.max95,decimal.mark = ","),") selbständige Luchse pro 100 km^2^ geeignetem Habitat. 
+    
+\n",sep="")
+  
+}
 
 ```
 
@@ -2434,7 +2486,7 @@ cat("**La densité estimée pour 100 km^2^ d’habitat favorable dans le ",Text.
       paste(prettyNum(History[length(History$Year),Density],decimal.mark=",")," (",
       prettyNum(History[length(History$Year),Min95],decimal.mark=","),
       "-",
-      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") ne diffère pas significativement des valeurs les plus récentes estimées dans les autres aires de référence à l’exception de celle mesurée dans l’Ouest de la Suisse centrale, le Haut-Valais et le Sud du Bas-Valais (Tab. 2). Elle se situe parmi les plus hautes estimées dans l’ensemble de la Suisse.**",sep="")
+      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") ne diffère pas significativement des valeurs les plus récentes estimées dans les autres aires de référence à l’exception de celles mesurées dans l’Ouest de la Suisse centrale, le Haut-Valais et le Sud du Bas-Valais (Tab. 2). Elle se situe parmi les plus hautes estimées dans l’ensemble de la Suisse.**",sep="")
 
 ```
 
@@ -2473,7 +2525,7 @@ cat("- tous les responsables des institutions cantonales et fédérales notammen
     
     \n")
 
-cat("- tous les surveillants de  la faune, **surveillants auxiliaires de la  faune, chasseurs et naturalistes** qui nous ont  aidés lors du choix  des sites ainsi  que  lors  de  la mise  en place  des pièges-photos, les contrôles et le  démontage,  en particulier\ua0:", paste(gsub(",","",sort(unique(DataFULL[,site_controller])[!unique(DataFULL[,site_controller]) %in% "KORA"])),collapse=", "),"\ua0;
+cat("- tous les surveillants de  la faune et volontaires qui nous ont  aidés lors du choix  des sites ainsi  que  lors  de  la mise  en place  des pièges-photos, les contrôles et le  démontage,  en particulier\ua0:", paste(gsub(",","",sort(unique(DataFULL[,site_controller])[!unique(DataFULL[,site_controller]) %in% "KORA"])),collapse=", "),"\ua0;
 
 \n")
 
@@ -2536,7 +2588,7 @@ cat("- allen  Verantwortlichen der beteiligten kantonalen  und eidgenössischen 
     
     \n")
 
-cat("- allen Wildhütern, **freiwilligen Jagdaufsehern, Jägern und Naturfreunden**, die  uns bei der Wahl der  Standorte,  sowie  bei den Kontrollen und  dem Abbau der Fotofallen geholfen haben, insbesondere: ", paste(gsub(",","",sort(unique(DataFULL[,site_controller])[!unique(DataFULL[,site_controller]) %in% "KORA"])),collapse=", "),";
+cat("- allen Wildhütern und Freiwilligen, die  uns bei der Wahl der  Standorte,  sowie  bei den Kontrollen und  dem Abbau der Fotofallen geholfen haben, insbesondere: ", paste(gsub(",","",sort(unique(DataFULL[,site_controller])[!unique(DataFULL[,site_controller]) %in% "KORA"])),collapse=", "),";
 
 \n")
 
@@ -2569,10 +2621,13 @@ cat("**Zimmermann, F. & Breitenmoser, U. 2007. *Potential distribution and popul
 cat("**Vorgeschlagene Zitierung:** 
 \n")
 
-cat(paste(Authors,", ",data.table::year(Sys.time()),". ",Title," KORA Bericht xx, 12pp. \n",sep=""))
+cat(paste(Authors,", ",data.table::year(Sys.time()),". ",Title," KORA Bericht xx, 12pp.
+          
+\n",sep=""))
 
 
 cat("**Digitale geografische Daten:** 
+
 \n")
   
 cat("Alle Datenanalysen und die Datenverarbeitung wurden mit der statistischen Programmiersprache und Umgebung R 4.1.0 (R Core Team, 2021) durchgeführt. Die Daten, die für die Erstellung des Kartenhintergrunds verwendet wurden, stammen aus der Open Street Map (https://www.openstreetmap.org/). Abbildung 1 enthaltet die Höhen- und Seenschicht von GEOSTAT, © Bundesamt für Statistik; Euromaps, © Bartholomew.
@@ -2621,8 +2676,32 @@ cat("![**Fig. A.",i,".** Détections de ",Species.other.table[Species.other.tabl
 
 ```{r Plot Appendix Map DE, echo=FALSE,results='asis',eval=Language=="DE"}
 
-Species.other.table<-data.table(Latin=c("Canis lupus","Felis silvestris","Canis aureus"),
-                                DE=c("Wolf","Wildkatze","Goldschakal"))
+Species.other.table<-data.table(Latin=c("Canis lupus","Felis silvestris","Canis aureus",
+                                        "Vulpes vulpes", "Capreolus capreolus",
+                                        "Rupicapra rupicapra",
+                                        "Meles meles",
+                                        "Lepus europaeus",
+                                        "Cervus elaphus",
+                                        "Capra ibex",
+                                        "Martes foina",
+                                        "Felis catus",
+                                        "Lepus timidus",
+                                        "Sciurus vulgaris",
+                                        "Martes martes",
+                                        "Erinaceus europaeus"),
+                                DE=c("Wolf","Wildkatze","Goldschakal",
+                                     "Fuchs","Reh",
+                                     "Gämse",
+                                     "Dachs",
+                                     "Feldhase",
+                                     "Hirsch",
+                                     "Steinbock",
+                                     "Steinmarder",
+                                     "Hauskatze",
+                                     "Schneehase",
+                                     "Eichhörnchen",
+                                     "Baummarder",
+                                     "Igel"))
 
 if(length(Species.other)>0){for(i in 1:length(Species.other)){
   
