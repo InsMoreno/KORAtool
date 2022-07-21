@@ -78,7 +78,7 @@ KORAmapsex<-function(
   # ------ Study Area 
   
   # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_all_new2022.shp"))
   Rcompartment<-Rcompartment[Refarea,]
 
   #Compute Boundary Box (BB)
