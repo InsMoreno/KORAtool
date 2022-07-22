@@ -139,7 +139,7 @@ KORAmapsex<-function(
   Cities <- sp::SpatialPointsDataFrame(coords = Cities[,c("x","y")], data = Cities,
                                      proj4string = CRS)
 
-   #crop cities in study area
+  #crop cities in study area
   Cities <-raster::crop(Cities,study_area)
   Cities <-data.table::as.data.table(Cities) 
 
