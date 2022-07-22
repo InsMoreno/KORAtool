@@ -132,6 +132,23 @@ KORAmapsex<-function(
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y),col="black", pch=1,size=5)
   
+  # --- Get city names for the map ####
+  #Official directory of towns and cities (CH)
+  Cities <- fread("MAP_Data/cities_LV03.csv",encoding="UTF-8")
+  #as spatial
+  Cities <- sp::SpatialPointsDataFrame(coords = Cities[,c("x","y")], data = Cities,
+                                     proj4string = CRS)
+
+   #crop cities in study area
+  Cities <-raster::crop(Cities,study_area)
+  Cities <-data.table::as.data.table(Cities) 
+
+
+  # --- Add Cities dots to map:####
+  map<-map+ggplot2::geom_point(data=Cities,ggplot2::aes(x,y), col="#D55E00", pch=19,size=1)+
+         ggrepel::geom_text_repel(data=Cities,ggplot2::aes(x,y,label=Ort), color ="white")
+  
+  
  # --- Add Scale: ####
   
   # distance on x axes:
