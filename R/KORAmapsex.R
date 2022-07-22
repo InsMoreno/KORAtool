@@ -109,7 +109,7 @@ KORAmapsex<-function(
   #Get the map
   #warnings OK
   suppressWarnings(map <- OpenStreetMap::openmap(c(LAT2,LON1), c(LAT1,LON2), zoom = Zoom.map, #can be replaced by NULL
-                                                 type = c("stamen-terrain")[1],
+                                                 type = c("bing")[1],
                                                  mergeTiles = TRUE))
   
   #Correct projection
