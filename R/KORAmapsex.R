@@ -201,8 +201,8 @@ KORAmapsex<-function(
     for(i in 1:length(ID.names$ID)){
       dat <- table[table$id_individual==ID.names[i,ID],c("x","y")] #if in github ID should be in "ID"
       
-      ch <- grDevices::chull(dat)
-      coords<-dat[c(ch, ch[1]), ]  # closed polygon
+      #polygon around outer points
+      coords<-as.data.frame(concaveman::concaveman(as.matrix(dat)))
       
       sp_poly <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords)), ID=ID.names[i,"ID"])))
       raster::crs(sp_poly)<-CRS
