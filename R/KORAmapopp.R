@@ -40,7 +40,7 @@ KORAmapopp<-function(LynxObs,Start,Stop,Compartment,Refarea,IDremove,Buffer.poly
   Komp <- sf::read_sf(dsn = "MAP_Data/Luchs_Komp_21_07_2015_new.shp")
   
   # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_alln.shp"))
+  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_all_new2022.shp"))
   Rcompartment<-Rcompartment[Refarea,]
   Rcompartment<-sf::st_as_sf(Rcompartment)
   
