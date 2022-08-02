@@ -455,7 +455,7 @@ if(Language== "FR"){
       
       
       if(length(mom.present[mom.present == FALSE])==1){
-        txt.juv<-paste("Le juvénile ", Lynx.Table[Lynx.Table$YOB==juv.year,ID], " a été observé sans sa mère ", Lynx.Table[Lynx.Table$YOB==juv.year,mother],".",sep="")
+        txt.juv<-paste("Le juvénile ", Lynx.Table[Lynx.Table$YOB==juv.year,ID][!mom.present], " a été observé sans sa mère ", Lynx.Table[Lynx.Table$YOB==juv.year,mother][!mom.present],".",sep="")
       }else{
         txt.juv<-paste("Juvéniles observés sans mère\ua0: ",paste(Lynx.Table[Lynx.Table$YOB==juv.year,ID],collapse=", "))
       }
@@ -489,7 +489,7 @@ if(Language== "DE"){
       
       
       if(length(mom.present[mom.present == FALSE])==1){
-        txt.juv<-paste("Der juvenile ", Lynx.Table[Lynx.Table$YOB==juv.year,ID], " wurde ohne seine Mutter (",Lynx.Table[Lynx.Table$YOB==juv.year,mother],") beobachtet.",sep="")
+        txt.juv<-paste("Der juvenile ", Lynx.Table[Lynx.Table$YOB==juv.year,ID][!mom.present], " wurde ohne seine Mutter (",Lynx.Table[Lynx.Table$YOB==juv.year,mother][!mom.present],") beobachtet.",sep="")
       }else{
         txt.juv<-paste("Jungtiere, die ohne Mutter beobachtet wurden: ",paste(Lynx.Table[Lynx.Table$YOB==juv.year,ID],collapse=", "))
       }
