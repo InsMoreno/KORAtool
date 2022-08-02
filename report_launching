@@ -1,0 +1,153 @@
+devtools::install_github("CrocutaLupus/KORAtool")
+library(KORAtool)
+
+# Trap night calendar ####
+
+#genereate code
+TN<-list()
+for(i in seq(from=10,to=148,by=2)){
+  TN[i]<- noquote(paste('=WENN(ODER($F$',i,'=1, $F$',i+1,'=1),1,WENN(UND($F$',i,'="",$F$',i+1,'=""),"",WENN($F$',i,'=0,$F$',i+1,',$F$',i,')))',sep=""))
+}
+TN<-TN[!sapply(TN,is.null)]
+
+table.TN<-data.table::data.table(x=1:70,y=TN)
+table.TN<-table.TN[,"y"]
+#copy in first colum, remove $ with ctr H and drag. 
+
+
+########## LUNO DE #####
+
+KORAtool::KORAMonitoringBericht(
+  effective.TN = 3675,
+  potentially.TN = 4200,
+  #Title:
+  Title= "Fang-Wiederfang-Schätzung der Abundanz und Dichte des Luchses in der Nordostschweiz II im Winter 2021/22",
+  #Language: (FR,DE)
+  Language= "DE",
+  #Authors: ex."Luc Le Grand, Florin Kunz, Fridolin Zimmermann"
+  Authors= "Sterrer Ursula, Le Grand Luc, Kunz Florin, Rüegg Martin , Zimmermann Fridolin",
+  #KORAphoto (from session) data csv name:
+  KORAphoto= "kora_photo_luno.csv",
+  #Lynx master data csv name:
+  Lynxmaster= "lynx_master.csv",
+  #Photo Predator csv name:
+  PhotoPredator= "photo_predator.csv",
+  #Lynx Observation CSV name:
+  LynxObs= "lynx_observation.csv",
+  #Compartment: 
+  #1:"Nordostschweiz"
+  #2:"Misox (Mesolcina)"
+  #3:"Tessin"
+  #4:"Surselva"
+  #5:"Zentralschweiz Ost"
+  #6:"Rhone-Nord"
+  #7:"Unterwallisüd"
+  #8:"Simme-Saane"
+  #9:"Engadin"
+  #10:"Jura Nord"
+  #11:"Jura Süd"
+  #12:"Mittelbünden"
+  #13:"Zentralschweiz West"
+  #14:"Zentralschweiz Mitte"
+  #15:"Berner Oberland Ost"
+  #16:"Oberwallis")
+  Compartment= 1,
+  #1 Rhône Nord IV c
+  #2 Surselva    V c 
+  #3 Sud du Bas Valais   IV d 
+  #4 Haut-Valais   IV e 
+  #5 Simme-Saane   IV a 
+  #6 Nord-est de la Suisse     II  
+  #7 Val Mesolcina-Sud du Tessin    V b  
+  #8 Est de la Suisse centrale  III c 
+  #9 Centre de la Suisse centrale  III b 
+  #10 Engadine    V e 
+  #11 Tessin    V a 
+  #12 Sud du Jura    I a  
+  #13  Ouest de la Suisse centrale  III a  
+  #14  Nord du Jura    I b  
+  #15  Centre des Grisons    V d 
+  #16  Est de l'Oberland Bernois   IV b  
+  Refarea = 6,
+  #Suitable habitat (km2):
+  favorable= 789,
+  #Period length selected (3 other 5 days)
+  Period.selected= 3,
+  #JuvasMother
+  JuvasMother=FALSE,
+  #Species.other to be ploted at the end of the report
+  Species.other = c("Canis lupus"),
+  #Report Name
+  ReportName="KORA_Report_LUNO_2021_2022",
+  # Which best Model (1 to 8 or 9 if ext.model provided)
+  which.best.model.selected = 9,
+  #External Model results to be used in the report
+  External.Model=c("5","Mbh","23","3.6798","22-43")
+)
+
+effective.TN = 3675
+potentially.TN = 4200
+#Title:
+Title= "Fang-Wiederfang-Schätzung der Abundanz und Dichte des Luchses in die Nordostschweiz II im Winter 2021/22"
+#Language: (FR,DE)
+Language= "DE"
+#Authors: ex."Luc Le Grand, Florin Kunz, Fridolin Zimmermann"
+Authors= "Sterrer Ursula, Le Grand Luc, Kunz Florin, Rüegg Martin , Zimmermann Fridolin"
+#KORAphoto data csv name:
+KORAphoto= "kora_photo_luno.csv"
+#Lynx master data csv name:
+Lynxmaster= "lynx_master.csv"
+#Photo Predator csv name:
+PhotoPredator= "photo_predator.csv"
+#Lynx Observation CSV name:
+LynxObs= "lynx_observation.csv"
+#Compartment: 
+#1:"Nordostschweiz"
+#2:"Misox (Mesolcina)"
+#3:"Tessin"
+#4:"Surselva"
+#5:"Zentralschweiz Ost"
+#6:"Rhone-Nord"
+#7:"Unterwallisüd"
+#8:"Simme-Saane"
+#9:"Engadin"
+#10:"Jura Nord"
+#11:"Jura Süd"
+#12:"Mittelbünden"
+#13:"Zentralschweiz West"
+#14:"Zentralschweiz Mitte"
+#15:"Berner Oberland Ost"
+#16:"Oberwallis")
+Compartment= 1
+#Sutdy Area (Reference Area):
+#1 Rhône Nord IV c
+#2 Surselva    V c 
+#3 Sud du Bas Valais   IV d 
+#4 Haut-Valais   IV e 
+#5 Simme-Saane   IV a 
+#6 Nord-est de la Suisse     II  
+#7 Val Mesolcina-Sud du Tessin    V b  
+#8 Est de la Suisse centrale  III c 
+#9 Centre de la Suisse centrale  III b 
+#10 Engadine    V e 
+#11 Tessin    V a 
+#12 Sud du Jura    I a  
+#13  Ouest de la Suisse centrale  III a  
+#14  Nord du Jura    I b  
+#15  Centre des Grisons    V d 
+#16  Est de l'Oberland Bernois   IV b  
+Refarea = 6
+#Suitable habitat (km2):
+favorable= 789
+#Period length selected (3 other 5 days)
+Period.selected= 3
+#JuvasMother
+JuvasMother=TRUE
+#Species.other to be ploted at the end of the report
+Species.other = c("Canis lupus")
+#Report Name
+ReportName="KORA_Report_LUNO_2021_2022"
+# Which best Model (1 to 8 or 9 if ext.model provided)
+which.best.model.selected = 9
+#External Model results to be used in the report
+External.Model=c("5","Mbh","23","3.6798","22-43")
