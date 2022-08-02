@@ -142,7 +142,7 @@ favorable= 789
 #Period length selected (3 other 5 days)
 Period.selected= 3
 #JuvasMother
-JuvasMother=TRUE
+JuvasMother=FALSE
 #Species.other to be ploted at the end of the report
 Species.other = c("Canis lupus")
 #Report Name
