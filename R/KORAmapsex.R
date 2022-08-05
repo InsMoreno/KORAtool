@@ -134,7 +134,7 @@ KORAmapsex<-function(
   
   # --- Get city names for the map ####
   #Official directory of towns and cities (CH)
-  Cities <- fread("MAP_Data/cities_LV03.csv",encoding="UTF-8")
+  Cities <- fread("MAP_Data/cities_LV03.csv",encoding="Latin-1")
   #as spatial
   Cities <- sp::SpatialPointsDataFrame(coords = Cities[,c("x","y")], data = Cities,
                                      proj4string = CRS)
