@@ -2346,7 +2346,7 @@ cat("**En tout, ", N.ind.lynx," lynx indépendants et ", N.juv," juvéniles de "
 
 
 if(length(Not.seen$ID)>0){
-cat("**Lors de cette session,",
+cat("**Lors de cette session (60 nuits),",
 length(Not.seen$ID),
 " lynx ",
 as.character(paste('(',paste(Not.seen$ID,collapse = ', '),')',sep='')),
@@ -2358,20 +2358,18 @@ as.character(paste('(',paste(Not.seen$ID,collapse = ', '),')',sep='')),
 \n")}
 
 if(length(Not.seen.opp)>0){
-cat("**Lors de cette session,",
+cat("**De plus,",
 length(Not.seen.opp),
 " lynx ",
 as.character(paste('(',paste(sort(Not.seen.opp),collapse = ', '),')',sep='')),
-"ont été observés dans le cadre de ce monitoring sans avoir été photographié dans le cadre du monitoring opportuniste.**
+"ont été observés dans le cadre de ce monitoring sans avoir été photographié dans le cadre du monitoring opportuniste. Les indices de présence de chaque individu peuvent être consultés dans le [KORA Monitoring Center](https://www.koracenter.ch).**
 
 \n")
 }
 
 cat("Un total de ",Event[ID=="Total",Event]," événements ont été répertoriés au cours de la période d’échantillonnage de 60 nuits dans l’ensemble de l’aire de référence (Tab. 1). Ceux-ci ont été ramenés à",
 ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])
-," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieures reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment, nous pouvons raisonnablement conclure que les lynx n'ont pas commencé à éviter les sites au cours de la période d'échantillonnage (Fig. 4). De plus la majeure partie des lynx présents dans l’aire de référence ont été détectés vu que le nombre de lynx capturés se stabilise déjà à partir de la XXXXième occasion.** \n")
-
-
+," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieures reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment et que les pièges-photos ont fonctionnés normalement, nous pouvons raisonnablement conclure que les lynx n'ont pas commencé à éviter les sites au cours de la période d'échantillonnage (Fig. 4). De plus la majeure partie des lynx présents dans l’aire de référence ont été détectés vu que le nombre de lynx capturés (courbe bleu, Fig. 4) se stabilise déjà à partir de la XXXXième occasion.** \n")
 
 if(length(Seen.external)==0){
 cat("**Lors de cette session, il n’y a pas eu de lynx qui ont été détectés en dehors de la période de 60 jours. Tous les lynx détectés ont donc été comptabilisés dans le calendrier de capture en vue des analyses de capture-recapture.** 
@@ -2396,7 +2394,7 @@ cat("#### Minimale  Anzahl  Luchse \n")
 cat("**Insgesamt wurden ", N.ind.lynx," selbständige Luchse und ", N.juv," Jungtier(e) von ", length(unique(Lynx.Table[Lynx.Table$YOB==juv.year & Lynx.Table$mother!="",mother]))," Wurf/Würfen nachgewiesen (Tab. 1)**. Diese Luchse wurden an ", as.numeric(Event[ID=="Total",4])," der ",Sites," aufgestellten Standorte (", prettyNum(as.numeric(round((Event[ID=="Total",4]*100)/Sites,1)),decimal.mark = ","),"%) fotografiert. ",sep="")
 
 if(length(Not.seen$ID)>0){
-cat("**Während diesem Durchgang wurde(n)",
+cat("**Während diesem Durchgang (60 Tage) wurde(n)",
 sum(!grepl("XXXX",Not.seen$ID),na.rm = TRUE),
 " Luchs(e) ",
 as.character(paste('(',paste(Not.seen$ID,collapse = ', '),')',sep='')),
@@ -2408,16 +2406,16 @@ as.character(paste('(',paste(Not.seen$ID,collapse = ', '),')',sep='')),
 \n")}
 
 if(length(Not.seen.opp)>0){
-cat("**Im Rahmen dieses Monitorings wurde(n)",
+cat("**Zusätzlich wurde(n)",
 length(Not.seen.opp),
 "Luchs(e)",
 as.character(paste('(',paste(sort(Not.seen.opp),collapse = ', '),')',sep='')),
-"beobachtet, ohne dass sie im Rahmen des opportunistischen Monitorings fotografiert worden waren.**
+"während dem Monitoring erfasst, ohne dass sie im selben Zeitraum im Rahmen des opportunistischen Monitorings fotografiert wurden. Die Nachweise von jedem einzelnen Luchsindividuum können im [KORA Monitoring Center](https://www.koracenter.ch) aufgerufen werden.**
 
 \n")
 }
 
-cat("Im gesamten Referenzgebiet wurden während der 60 Nächte des deterministischen Fotofallen-Monitorings bei ",Event[ID=="Total",Event]," Ereignissen Luchse fotografiert (Tab. 1). Diese Ereignisse werden für die Analyse in Fanggelegenheiten eingeteilt (in dieser Studie ", ifelse(Period.selected==3,3,5) , "aufeinanderfolgende Nächte) woraus ",ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])," Erfassungen hervorgehen. Wird derselbe Luchs während einer Fanggelegenheit mehrmals fotografiert, zählt dies als eine Erfassung. **Die Zahl der kumulativen Erfassungen nimmt ständig zu (Abb. 4). Dieser kontinuierliche Anstieg ist ein Indiz für einen erfolgreichen Durchgang. Da es keine grossflächigen Einbrüche in der Funktionalität der Fotofallen gab, können wir daraus schliessen, dass Luchse keine Scheu vor den Fotofallen entwickelten.
+cat("Im gesamten Referenzgebiet wurden während der 60 Nächte des deterministischen Fotofallen-Monitorings bei ",Event[ID=="Total",Event]," Ereignissen Luchse fotografiert (Tab. 1). Diese Ereignisse werden für die Analyse in Fanggelegenheiten eingeteilt (in dieser Studie ", ifelse(Period.selected==3,3,5) , "aufeinanderfolgende Nächte) woraus ",ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])," Erfassungen hervorgehen. Wird derselbe Luchs während einer Fanggelegenheit mehrmals fotografiert, zählt dies als eine Erfassung. **Die Zahl der kumulativen Erfassungen nimmt ständig zu (Abb. 4). Dieser kontinuierliche Anstieg ist ein Indiz für einen erfolgreichen Durchgang. Da es keine grossflächigen Einbrüche in der Funktionalität der Fotofallen gab, können wir daraus schliessen, dass Luchse keine Scheu vor den Fotofallen entwickelten. Des Weiteren stabilisiert sich die Anzahl der verschiedenen Luchse (blaue Kurve, Abb. 4) bereits ab der XXXXX Fanggelegenheit, weshalb davon ausgegangen werden kann, dass der Grossteil der Luchse im Referenzgebiet nachgewiesen werden konnte.
 ** \n")
 
 
@@ -2556,7 +2554,7 @@ cat("**La densité estimée pour 100 km^2^ d’habitat favorable dans le ",Text.
       paste(prettyNum(History[length(History$Year),Density],decimal.mark=",")," (",
       prettyNum(History[length(History$Year),Min95],decimal.mark=","),
       "-",
-      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") ne diffère pas significativement des valeurs les plus récentes estimées dans les autres aires de référence à l’exception de celles mesurées dans l’Ouest de la Suisse centrale, le Haut-Valais et le Sud du Bas-Valais (Tab. 2). Elle se situe parmi les plus hautes estimées dans l’ensemble de la Suisse.**",sep="")
+      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") se situe parmi les (XXXX-check) plus haute estimées dans l’ensemble de la Suisse (Tab. 2).**",sep="")
 
 ```
 
@@ -2569,7 +2567,7 @@ cat("**Die geschätzte Dichte pro 100 km^2^ geeignetem Habitat im Referenzgebiet
       paste(prettyNum(History[length(History$Year),Density],decimal.mark=",")," (",
       prettyNum(History[length(History$Year),Min95],decimal.mark=","),
       "-",
-      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") unterscheidet sich nicht signifikant von den zuletzt geschätzten Werten in den anderen Referenzgebieten, mit Ausnahme der Werte, von den Gebieten Zentralschweiz West und Oberwallis (Tab. 2). Die Dichte gehört zu den höchsten, die je für die gesamte Schweiz geschätzt wurden.**",sep="")
+      prettyNum(History[length(History$Year),Max95],decimal.mark=","),")",sep=""),") liegt im (XXXXX-check) mittleren Bereich der zuletzt geschätzten Werte in den Referenzgebieten (Tab. 2).**",sep="")
 
 ```
 
