@@ -14,6 +14,8 @@ multimarkClosedSCR.sometimes.Input.Table<-function(
   simultaneous.minute,
   UnwantedID,
   Species,
+  Start.Session,
+  Stop.Session,
   Random,
   Name.Matrix
 ){
