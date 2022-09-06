@@ -3,23 +3,21 @@
 #' @param KORA.Photo.Output
 #' @param species
 #' @param Buffer.map
+#' @param Buffer.polygon
 #' @param Zoom.map
 #' @param IDremove
 #' @param Start
 #' @param Stop
-#' @param Buffer.polygon
-#' @param Pattern
 #' @param Buffer.label
+#' @param Pattern
 #' @param Name.Map
-#' @param Refarea
 #' @param Red.point.ID
-#' @param Sexremove
 #'
 #' @return
 #' @export
 #'
 #' @examples
-KORAmapsex<-function(
+KORAmapwk<-function(
   KORA.Photo.Output,
   species,
   Buffer.map,
