@@ -23,6 +23,7 @@ KORAmapsex<-function(
   KORA.Photo.Output,
   species,
   Buffer.map,
+  Buffer.polygon,
   Zoom.map,
   IDremove,
   Start,
@@ -30,25 +31,22 @@ KORAmapsex<-function(
   Buffer.label,
   Pattern,
   Name.Map,
-  Refarea,
-  Red.point.ID,
-  Sexremove
-  
+  Red.point.ID
 ){
   
   # ---------- Default values: ####
   if(!exists("KORA.Photo.Output")){warning("KORA.Photo.Output not provided")}
   if(!exists("species")){warning("species not provided")}
   if(!exists("Buffer.map")){warning("Buffer.map not provided. Default = 0.01"); Buffer.map<-0.01}
+  if(!exists("Buffer.polygon")){warning("Buffer.polygon not provided. Default = 500m"); Buffer.polygon<-500}
   if(!exists("Start")){warning("Start date not provided")}
   if(!exists("Stop")){warning("Stop date not provided")}
   if(!exists("Zoom.map")){warning("Zoom.map not provided. Default = 14"); Zoom.map<-13}
   if(!exists("Buffer.label")){warning("Buffer.polygon not provided. Default = 2000m"); Buffer.label<-2000}
   if(!exists("Red.point.ID")){warning("Red.point.ID not provided. Default = NO_red_point"); Red.point.ID<-"NO_red_point"}
-  if(!exists("Sexremove")){warning("Sexremove not provided. Default = none removed"); Sexremove<-""}
   # ------------------- Import Data ####
   
-  table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual","Sex","Juv")]
+  table<-KORA.Photo.Output[, c("animal_species","x","y", "exposure_date", "exposure_time","id_individual")]
  
   #Sites
   table$XY<-paste(table$x,table$y, sep=";")
@@ -63,11 +61,8 @@ KORAmapsex<-function(
   table<-table[table$TIME>as.POSIXct(Start,format= "%Y-%m-%d %H:%M:%S") &
                  table$TIME<as.POSIXct(Stop,format= "%Y-%m-%d %H:%M:%S"),]
   #Keep only used variables
-  table<-table[,c("animal_species","XY","x","y","TIME","id_individual","Sex","Juv")]
-  
-  # Remove unwantex sex
-  table<-table[!(table$Sex %in% Sexremove),]
-  
+  table<-table[,c("animal_species","XY","x","y","TIME","id_individual")]
+    
   # ------------------- Map 
   
   # ------ Projection : 
@@ -77,13 +72,9 @@ KORAmapsex<-function(
   
   # ------ Study Area 
   
-  # --- Import shapefile Study area Polygon
-  suppressWarnings(Rcompartment <- raster::shapefile("MAP_Data/Reference_areas_all_new2022.shp"))
-  Rcompartment<-Rcompartment[Refarea,]
-
   #Compute Boundary Box (BB)
-  study_area.origin<-sp::bbox(Rcompartment)
-  study_area<-study_area.origin
+  study_area.origin<-sp::bbox(sp::SpatialPoints(table[,c("x","y")]))
+  study_area<-sp::bbox(sp::SpatialPoints(table[,c("x","y")]))
   
   #Add x% around the BBox to have some extra map area
   
@@ -109,7 +100,7 @@ KORAmapsex<-function(
   #Get the map
   #warnings OK
   suppressWarnings(map <- OpenStreetMap::openmap(c(LAT2,LON1), c(LAT1,LON2), zoom = Zoom.map, #can be replaced by NULL
-                                                 type = c("bing")[1],
+                                                 type = c("stamen-terrain")[1],
                                                  mergeTiles = TRUE))
   
   #Correct projection
@@ -124,32 +115,13 @@ KORAmapsex<-function(
                    axis.text=ggplot2::element_blank(),
                    axis.ticks=ggplot2::element_blank(),
                    panel.border = ggplot2::element_rect(colour = "white", fill=NA, size=15))
-  
-  # --- Add shapefile Study area Polygon
-  map<-map+ggplot2::geom_polygon(data = Rcompartment@polygons[[1]], ggplot2::aes(x=long, y=lat,group = group),
-                               colour="darkblue", fill=NA, alpha=1, lwd=1.1)+
+
   # --- Add Sites:####
-  ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
+  map<-map+ggplot2::geom_point(data=Sites,ggplot2::aes(x,y), col="white", pch=19,size=5)+
   ggplot2::geom_point(data=Sites,ggplot2::aes(x,y),col="black", pch=1,size=5)
+ 
   
-  # --- Get city names for the map ####
-  #Official directory of towns and cities (CH)
-  Cities <- fread("MAP_Data/cities_LV03.csv",encoding="Latin-1")
-  #as spatial
-  Cities <- sp::SpatialPointsDataFrame(coords = Cities[,c("x","y")], data = Cities,
-                                     proj4string = CRS)
-
-  #crop cities in study area
-  Cities <-raster::crop(Cities,study_area)
-  Cities <-data.table::as.data.table(Cities) 
-
-
-  # --- Add Cities dots to map:####
-  map<-map+ggplot2::geom_point(data=Cities,ggplot2::aes(x,y), col="#D55E00", pch=19,size=1)+
-         ggrepel::geom_text_repel(data=Cities,ggplot2::aes(x,y,label=Ort), color ="white")
-  
-  
- # --- Add Scale: ####
+  # --- Add Scale: ####
   
   # distance on x axes:
   dist.scale<-plyr::round_any(round(((study_area@bbox[1,2]-study_area@bbox[1,1])/1000)/4), 10, f = ceiling)
@@ -172,26 +144,22 @@ KORAmapsex<-function(
   # --- Add the polygons and labels: ####
   
   # -- Create Table
-  ID.names<-table[table$animal_species==species, c("id_individual","animal_species","Sex","Juv")]
+  ID.names<-table[table$animal_species==species, c("id_individual","animal_species")]
   ID.names<-unique(ID.names)
   
   # -- Indicate colors
+  #(used https://www.datanovia.com/en/blog/how-to-stimulate-colorblindness-vision-in-r-figures/)
   
-  #All black as default
-  ID.names$col<-"#000000"
-  #Males in blue
-  ID.names[ID.names$Sex=="male","col"]<-"#0072B2"
-  #Females in pink
-  ID.names[ID.names$Sex=="female","col"]<-"#CC79A7"
+  # If not enough colors, will repeat the 8 colors
+  ID.names$col<-rep_len(c("#000000", "#E69F00",
+                          "#56B4E9", "#009E73",
+                          "#F0E442", "#0072B2",
+                          "#D55E00", "#CC79A7"),length.out=length(ID.names$id_individual))
   
   names(ID.names)[1]<-"ID"
-  
+   
   # -- remove unwanted ID
   if(exists("IDremove")){ID.names<-ID.names[ID.names$ID!=IDremove,]}
-  
-  # -- remove Juv polygons
-  
-  ID.names<-ID.names[ID.names$Juv!="Juv" | is.na(ID.names$Juv),]
   
   # -- Compute the polygons
   sp_poly.all <- vector(mode = "list")
@@ -206,14 +174,7 @@ KORAmapsex<-function(
       
       sp_poly <- sp::SpatialPolygons(list(sp::Polygons(list(sp::Polygon(coords)), ID=ID.names[i,"ID"])))
       raster::crs(sp_poly)<-CRS
-      
-      if(ID.names[i,Sex]=="male"){
-      Buffer.polygon<-1800}
-      if(ID.names[i,Sex]=="female"){
-      Buffer.polygon<-1400}
-      if(ID.names[i,Sex]=="unknown"){
-      Buffer.polygon<-1000}
-      
+   
       sp_poly<-rgeos::gBuffer(sp_poly,width=Buffer.polygon)
       raster::crs(sp_poly)<-CRS
       sp_poly.all[i]<-sp_poly
@@ -252,11 +213,7 @@ KORAmapsex<-function(
   
   # -- remove unwanted ID
   if(exists("IDremove")){data_labels<-data_labels[data_labels$ID!=IDremove,]}
-  
-  # -- Add JUV to juvenile ID
-  
-  data_labels=data_labels
-  
+    
   # -- Add to the map
   
   for(i in 1:length(ID.names$ID)){
@@ -328,13 +285,7 @@ KORAmapsex<-function(
                                ggplot2::aes(x=x,y=y),
                                col="red", pch=19, cex=1.5)
   
-    # --- Add points orange Juv:####
   
-  
-  map<-map+ggplot2::geom_point(data=table[table$animal_species==species & 
-                                            table$Juv=="Juv",],
-                               ggplot2::aes(x=x,y=y),
-                               col="#009E73", pch=19, cex=1.5)
   
   # --- Add points black:####
   map<-map+ggplot2::geom_point(data=table[table$animal_species==species & 
