@@ -14,7 +14,8 @@ multimarkClosedSCR.sometimes.Input.Table<-function(
   simultaneous.minute,
   UnwantedID,
   Species,
-  Random
+  Random,
+  Name.Matrix
 ){
   # ---- Import Data ####
   
@@ -39,13 +40,9 @@ multimarkClosedSCR.sometimes.Input.Table<-function(
   
   # Start and Stop Session
   
-  Start<-as.POSIXct(paste(Data[1,session_study_start_date],
-                          Data[1,session_study_start_time],sep=" "),
-                    format= '%Y-%m-%d %H:%M:%S')
+  Start<-Start.Session
   
-  Stop<-as.POSIXct(paste(Data[1,session_study_end_date],
-                         Data[1,session_study_end_time],sep=" "),
-                   format= '%Y-%m-%d %H:%M:%S')
+  Stop<-Stop.Session
   
   site_name<-sort(unique(Data$site_name))
   
@@ -182,7 +179,7 @@ multimarkClosedSCR.sometimes.Input.Table<-function(
   names(Occ.table)[1]<-"ID"
 
   # ---- Write CSV 
-  utils::write.csv(Occ.table, "Enc_Mat.csv")
+  utils::write.csv(Occ.table, Name.Matrix)
   
   #studyArea is a 3-column matrix containing the coordinates for the centroids of a contiguous
   #grid of cells that define the study area and available habitat. Each row corresponds
