@@ -31,7 +31,7 @@ KORAmapwk<-function(
   Name.Map,
   Red.point.ID
 ){
-  
+    
   # ---------- Default values: ####
   if(!exists("KORA.Photo.Output")){warning("KORA.Photo.Output not provided")}
   if(!exists("species")){warning("species not provided")}
@@ -265,7 +265,8 @@ KORAmapwk<-function(
                               force = 10,
                               xlim = c(study_area@bbox[1,1], study_area.origin[1,1]-Buffer.label), ylim = c(study_area.origin[2,1],study_area.origin[2,2]),
                               bg.color = "white",
-                              bg.r = 0.25)
+                              bg.r = 0.25,
+                              max.overlaps = Inf)
   #Add label right side
   map<-map+
     ggrepel::geom_text_repel(data = data_labels[data_labels$side=="right",], ggplot2::aes(lon, lat, label = ID),
@@ -274,7 +275,8 @@ KORAmapwk<-function(
                               force = 10,
                               xlim = c(study_area.origin[1,2]+Buffer.label,study_area@bbox[1,2]), ylim = c(study_area.origin[2,1],study_area.origin[2,2]),
                               bg.color = "white",
-                              bg.r = 0.25)
+                              bg.r = 0.25,
+                              max.overlaps = Inf)
   
   
   # --- Add points U red:####
