@@ -27,7 +27,7 @@ multimarkClosedSCR.sometimes.Input.Table<-function(
     "session_study_end_date",
     "session_study_end_time",
     "id_individual",
-    "id_flank","x","y","site_name","film_id","animal_species"))
+    "id_flank","x","y","site_name","film_id","animal_species"),encoding = "Latin-1")
   
 
   # ---- Create Encounter Matrix ####
