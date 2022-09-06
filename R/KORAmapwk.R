@@ -262,7 +262,7 @@ KORAmapwk<-function(
     ggrepel::geom_text_repel(data = data_labels[data_labels$side=="left",], ggplot2::aes(lon, lat, label = ID),
                               colour = data_labels[data_labels$side=="left","col.ID"],cex=4,
                               segment.size=0.5,
-                              force = 20,
+                              force = 10,
                               xlim = c(study_area@bbox[1,1], study_area.origin[1,1]-Buffer.label), ylim = c(study_area.origin[2,1],study_area.origin[2,2]),
                               bg.color = "white",
                               bg.r = 0.25)
@@ -271,7 +271,7 @@ KORAmapwk<-function(
     ggrepel::geom_text_repel(data = data_labels[data_labels$side=="right",], ggplot2::aes(lon, lat, label = ID),
                               colour = data_labels[data_labels$side=="right","col.ID"],cex=4,
                               segment.size=0.5,
-                              force = 20,
+                              force = 10,
                               xlim = c(study_area.origin[1,2]+Buffer.label,study_area@bbox[1,2]), ylim = c(study_area.origin[2,1],study_area.origin[2,2]),
                               bg.color = "white",
                               bg.r = 0.25)
