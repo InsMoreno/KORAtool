@@ -1,0 +1,402 @@
+
+
+#SKRIPT ZUR ERSTELLUNG DER KARTEN FÜR QB WOLF
+#last modification 2022-09-06
+#Ursi Sterrer
+
+#-------------  MANUAL -------------#
+#Mache einen Export der Tabellen "wolf_master", "wolf_genetics", wolf_packs" und "wolf_dead" aus dem KORAdata
+#speichere sie im gleichen Ordner, wie dieses Skript. Die Dateinamen müssen exact so wie oben geschrieben werden!!
+#Nach dem modifizieren der gewünschten Werte (siehe weiter unten)
+#Um das Skript laufen zu lassen, klicke mit der Maus vor den ersten Befehl rm(list = ls())
+#drücke auf der Tastatur gleichzeitig "Ctrl" (= Strg) und "shift" (Grossschreibtaste) und dann "Enter"
+#ACHTUNG: Falls die Sonderzeichen nicht richtig angezeigt werden, oben links auf File --> Reopen with Encoding --> UTF-8
+#-----------------------------------#
+### run
+
+rm(list = ls())
+
+#### HIER MUSS RALPH DIE EINTRÄGE MODIFIZIEREN ####
+
+#define start end end date for QB (24 months)
+startDate <- "2021-10-01" #Startdatum (Format yyy-mm-dd) immer in ""
+endDate <- "2022-09-12" #Enddatum (Format yyy-mm-dd) immer in ""
+bioyear <- "2021" #Biojahr -- es werden alle Einträge für die Analyse gefiltert, die >= dem eingegebenen Biojahr sind
+
+#ändere den Titel, der auf den Karten erscheinen wird (welcher Zeitraum)
+title_map1 <- "Wolfsnachweise in der Schweiz (12 Monate)" #map with packs, pairs & single wolves
+title_map2 <- "Rudel und Paare in der Schweiz (12 Monate)" #map with packs & pairs
+title_map3 <- "Rudel in der Schweiz (12 Monate)" #map with packs
+title_map4 <- "Paare in der Schweiz (12 Monate)" #map with pairs
+title_map5 <- "Tote Wölfe in der Schweiz (12 Monate)" #map with dead wolves
+
+#### AB HIER MUSS ER NICHTS MEHR ÄNDERN ####
+
+#load packages
+library(shinyjs)
+library(tidyverse)
+library(tmap)
+library(sf)
+library(raster)
+library(lubridate)
+
+#set working directory
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path ))
+print( getwd() )
+
+#load data
+master <- read.csv("wolf_master.csv", sep=';', encoding = "ANSI", header = F) 
+master <- master[-1,] #remove first row (empty)
+names(master) <- master %>% 
+  slice(1) %>% 
+  unlist() #take column names from first row
+master <- master [-1,-12] #remove additional column names and last column (NA)
+
+packs <- read.csv("wolf_packs.csv", sep=';', header = F, encoding = "ANSI")  
+packs <- packs[-1,] #remove first row (empty)
+names(packs) <- packs %>% 
+  slice(1) %>% 
+  unlist() #take column names from first row
+packs <- packs[-1,-23]
+packs$abbreviation <- as.factor(packs$abbreviation)
+packs <- packs %>% 
+  filter(biological_year >= bioyear) %>% 
+  filter(data_protection != "private") %>% 
+  filter(abbreviation != "Rin") %>% 
+  droplevels()
+
+genetics <- read.csv("wolf_genetics.csv", sep=';', encoding = "ANSI", header = F) 
+genetics <- genetics[-1,] #remove first row (empty)
+names(genetics) <- genetics %>% 
+  slice(1) %>% 
+  unlist() #take column names from first row
+genetics <- genetics[-1,-36]
+genetics$collectionDate <- as.Date(genetics$collectionDate, "%Y-%m-%d")
+genetics <- genetics %>% 
+  filter(data_protection != "private")
+
+dead <- read.csv("wolf_dead.csv", sep=";", encoding = "ANSI", header = F)
+dead <- dead[-1,] #remove first row (empty)
+names(dead) <- dead %>% 
+  slice(1) %>% 
+  unlist() #take column names from first row
+dead <- dead[-1,-17]
+dead$date <- as.Date(dead$date, "%Y-%m-%d")
+
+
+#import the required Baselayer shapefiles ----
+g1l <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/Polit/g1l98.shp")
+g1k <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/Polit/g1k98.shp")
+background1 <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/Geostat/Mask_CH_Liechtenstein.shp")
+see <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/Gew/grandlacs.shp")
+riv <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/Gew/Gew_Klasse_4-5.shp")
+chhs <- raster("../../../../03_Data/GIS_Data/CH/Geostat/grids/chhs/w001001.adf")
+comp <- st_read(dsn ="../../../../03_Data/GIS_Data/CH/KOmpartimente_Referenzgebiete/Wolfkomp_18_07_2015.shp")
+bbox <- st_bbox(c(xmin = 433000, xmax = 830000, ymax = 320000, ymin = 64000), crs = st_crs(21781))
+eu <- st_read(dsn ="../../../../03_Data/GIS_Data/Europe/European_country_borders/country_borders_europe.shp")
+
+
+## Prepare Master Table
+master <- master %>% 
+  mutate(sex = substr(sexID, 1, 1)) %>% 
+  mutate(residentsexID = ifelse((status == "resident"), sexID, NA))
+master$causeOfDeath[master$causeOfDeath == ""] <- NA  # replace empty values with NA
+
+## Prepare Genetics Table
+genetics_map <- genetics %>% 
+  left_join(master, by = "sexID") %>% # join info of master table
+  filter(collectionDate >= startDate) %>% #filter for desired time period
+  filter(collectionDate <= endDate) %>% 
+  filter(sexID != "")
+genetics_map$SCALP[genetics_map$SCALP == ""] <- NA #replace empty values with NA
+
+## Prepare Dead Table
+dead <- dead %>% 
+  filter(date >= startDate) %>% 
+  filter(date <= endDate) %>% 
+  mutate(Individuum = ifelse((wolf != "?"), "known", "unknown"))
+dead$Individuum <- as.factor(dead$Individuum)
+
+# keep only one (the most recent) record of each sexID
+recent_ind <- genetics_map %>%
+  arrange(desc(collectionDate)) %>%
+  distinct(sexID, .keep_all= TRUE)  
+
+# filter and create all subtables
+single_wolves <- recent_ind %>% 
+  filter(status != "dead") %>% 
+  filter(status != "pair") %>% 
+  filter(status != "pack") # remove also juveniles once in master table a file exists for "yearOfBirth"
+
+#generate shapefiles out of xy data ----
+packs_shp <- st_as_sf(packs, coords = c("x", "y"), crs = 21781) # crs 21781 stats for CH1903 LV03
+single_wolves_shp <- st_as_sf(single_wolves, coords = c("x", "y"), crs = 21781)
+recent_ind_shp <- st_as_sf(recent_ind, coords = c("x", "y"), crs = 21781)
+dead_shp <- st_as_sf(dead, coords = c("x", "y"), crs = 21781)
+
+
+single_wolves_shp$status <- as.factor(single_wolves_shp$status)
+single_wolves_shp$sex <- as.factor(single_wolves_shp$sex)
+
+# calculate distance of packs to border (Grenzüberschreitende Rudel)
+borderdist <- st_geometry(obj = g1l) %>% 
+  st_cast(to = 'LINESTRING') %>% 
+  st_distance(y = packs_shp)
+borderdist <- as.list(borderdist)
+packs_shp$borderdist <- borderdist
+packs_shp <- packs_shp %>% 
+  mutate(type2 = ifelse((borderdist < 9000 & type != "pair" & abbreviation != "Moe" & abbreviation != "Gw"),"pack transboundary", type)) # Transboundary if closer to Border than 9km
+
+
+# lets plot the Wolf Maps ----
+
+# Background maps 
+
+tmap_mode("plot") # set to "view" to have an interactive map
+
+crs(chhs) <- "+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +k_0=1 +x_0=600000 +y_0=200000 +ellps=bessel +towgs84=674.4,15.1,405.3,0,0,0,0 +units=m +no_defs"
+
+
+CHHS <- tm_shape(chhs)+
+  tm_raster(alpha = 0.3, palette = "-Greys", n = 7, 
+            contrast = c(0.05, 0.8),legend.show = F)
+
+background <- tm_shape(background1, bbox = bbox) + 
+  tm_fill("whitesmoke") +
+  tm_credits("Quelle: LBC, Kantone, Private                Karte: KORA", 
+             position = c("0.65", "0"), 
+             size=0.7, 
+             fontface = "italic") 
+
+seen <- tm_shape(see) + 
+  tm_fill("lightblue") + tm_borders("steelblue1", lwd = 0.9)
+
+rivers <- tm_shape(riv) + 
+  tm_lines("steelblue1", lwd = 1.3)
+
+comps <- tm_shape(comp) + 
+  tm_borders("grey7", lwd = .8) + 
+  tm_fill("#99cf99", alpha = 0.2)
+
+comps_empty <- tm_shape(comp) + 
+  tm_borders("grey7", lwd = .8)+
+  tm_text("Nummer", 
+          size=.8, fontface = "bold", auto.placement = F, xmod = -1.1)
+
+cantons <- tm_shape(g1k) + 
+  tm_borders("darkgrey", lwd = .5) + 
+  tm_fill("white")
+
+country <- tm_shape(g1l)+
+  tm_borders("darkgrey", lwd = 1)
+
+eumap <- tm_shape(eu) + 
+  tm_borders("darkgrey", lwd = .9)+
+  tm_text("countryNam", size = .7, auto.placement = T)
+
+#count the number of entries per category
+resident <- single_wolves_shp %>% 
+  filter(status == "resident")
+
+transient <- single_wolves_shp %>% 
+  filter(status == "transient")
+
+unknown <- single_wolves_shp %>% 
+  filter(status == "unknown")
+
+f_single <- single_wolves_shp %>% 
+  filter(sex == "F")
+m_single <- single_wolves_shp %>% 
+  filter(sex == "M")
+
+pack_sui <- packs_shp %>% 
+  filter(type2 == "pack") %>% 
+  distinct(abbreviation, .keep_all = TRUE)
+
+pack_transb <- packs_shp %>% 
+  filter(type2 == "pack transboundary") %>% 
+  distinct(abbreviation, .keep_all = TRUE)
+
+pair_count <- packs_shp %>% 
+  filter(type == "pair")
+
+#PACK and INDIVIDUAL MAP with TRANSIENT, RESIDENT, UNKNOWN
+single_wolves_map <- tm_shape(single_wolves_shp) + 
+  tm_symbols(col = "status", 
+          labels = c(paste0("Residente Wölfe (", nrow(resident), ")"), 
+                     paste0("Transiente Wölfe (",nrow(transient), ")"), 
+                     paste0("Unbekannt (", nrow(unknown), ")")
+                     ),
+          palette = c("lightskyblue", "gold", "honeydew4"),
+          size = 1, 
+          title.col = "Status",
+          border.col = "grey39",
+          alpha = 0.75,
+          border.lwd = 1,
+          sizes.legend = 5,
+          shape ="sex", 
+          title.shape ="Geschlecht", 
+          shapes = c(24,21),
+          shapes.labels = c(paste0("Weibchen (", nrow(f_single), ")"), 
+                            paste0("Männchen (", nrow(m_single), ")")
+                            ),
+          shapes.legend = 22,
+          shapes.legend.fill = "white")+ # include symbol for wolf of other population as soon as field exists in KoraOS
+  tm_layout(title = title_map1,
+    legend.position = c("left","top"),
+            legend.width = 15,
+            legend.text.size = 1.1, 
+            legend.title.size = 1.5, legend.height = .5	,
+            scale = 1.05)
+  
+packs_map <- tm_shape(packs_shp) + 
+  tm_dots("type2" , 
+          title = "Rudel & Paare", 
+          labels = c(paste0("Rudel (", nrow(pack_sui), ")"), 
+                     paste0("Rudel grenzüberschr. (", nrow(pack_transb), ")"), 
+                     paste0("Paare (", nrow(pair_count), ")")
+                     ),
+          size = 7, 
+          palette = c("royalblue4", "#298bd6", "darkorange2"),
+          shape = "type",
+          title.shape = "Typ",
+          shapes.labels = c("Rudel", "Paar"),
+          shapes = c(21, 22),
+          border.lwd = NA,
+          alpha = 0.5) +
+  tm_text("abbreviation", 
+          size=0.8, 
+          fontface = "bold")
+
+wolf_status_map_de <-  background + CHHS + rivers + country + seen + comps_empty + single_wolves_map + packs_map
+wolf_status_map_de
+tmap_save(wolf_status_map_de, filename = paste0("wolfnachweise_", Sys.Date(), ".jpg"))
+
+
+#PACK & PAIR map  
+
+packs_map2 <- tm_shape(packs_shp) + 
+  tm_dots("type2" , 
+          title = "Rudel", 
+          labels = c(paste0("Rudel (", nrow(pack_sui), ")"), 
+                     paste0("Rudel grenzüberschr. (", nrow(pack_transb), ")"), 
+                     paste0("Paare (", nrow(pair_count), ")")),
+          size = 7, 
+          palette = c("royalblue4", "#298bd6",  "darkorange2"), 
+          shape = "type",
+          title.shape = "Typ",
+          shapes.labels = c("Rudel", "Paar"),
+          shapes = c(21, 22),
+          border.lwd = NA,
+          alpha = 0.5) +
+  tm_text("abbreviation", 
+          size=0.8, 
+          fontface = "bold") +
+  tm_legend(legend.text.size = 1.1,
+            legend.title.size = 1.5) +
+  tm_layout(title = title_map2)
+
+wolf_pack_map_de <- background + CHHS + rivers + country + seen + comps_empty + packs_map2
+wolf_pack_map_de
+tmap_save(wolf_pack_map_de, filename = paste0("Rudel_und_Paare_", Sys.Date(), ".jpg"))
+
+#PACK Map
+packs_map_only <- packs_shp %>% 
+  filter(type == "pack")
+
+packs_map_only <- tm_shape(packs_map_only) + 
+  tm_dots("type2" , 
+          title = "Rudel", 
+          labels = c(paste0("Rudel (", nrow(pack_sui), ")"), 
+                     paste0("Rudel grenzüberschr. (", nrow(pack_transb), ")")),
+          size = 7, 
+          palette = c("royalblue4", "#298bd6"), 
+         # shape = "type",
+          #title.shape = "Typ",
+          #shapes.labels = c("Rudel", "Paar"),
+          shapes = 21,
+          border.lwd = NA,
+          alpha = 0.5) +
+  tm_text("abbreviation", 
+          size=0.8, 
+          fontface = "bold") +
+  tm_legend(legend.text.size = 1.1,
+            legend.title.size = 1.5) +
+  tm_layout(title = title_map3)
+
+wolf_pack_only_map_de <- background + CHHS + rivers + country + seen + comps_empty + packs_map_only
+wolf_pack_only_map_de
+tmap_save(wolf_pack_only_map_de, filename = paste0("Rudel_", Sys.Date(), ".jpg"))
+
+#PAIR Map
+pair_map_only <- packs_shp %>% 
+  filter(type == "pair")
+
+pair_map_only <- tm_shape(pair_map_only) + 
+  tm_dots("type2" , 
+          title = "Paare", 
+          labels = paste0("Paare (", nrow(pair_count), ")"),
+          size = 7, 
+          palette = "darkorange2", 
+          shape = "type",
+          title.shape = "Status",
+          shapes.labels = paste0("Paare (", nrow(pair_count), ")"),
+          legend.show = FALSE,
+          #title.shape = "Typ",
+          #shapes.labels = c("Rudel", "Paar"),
+          shapes = 22,
+          border.lwd = NA,
+          alpha = 0.5) +
+  tm_text("abbreviation", 
+          size=0.8, 
+          fontface = "bold") +
+  tm_legend(legend.text.size = 1.1,
+            legend.title.size = 1.5) +
+  tm_layout(title = title_map4)
+
+wolf_pair_only_map_de <- background + CHHS + rivers + country + seen + comps_empty + pair_map_only
+wolf_pair_only_map_de
+tmap_save(wolf_pair_only_map_de, filename = paste0("Paare_", Sys.Date(), ".jpg"))
+
+#DEAD Map
+dead_known <- dead_shp %>% 
+  filter(Individuum == "known")
+
+dead_unknown <- dead_shp %>% 
+  filter(Individuum == "unknown")
+
+dead_female <- dead_shp %>% 
+  filter(sex == "f")
+dead_male <- dead_shp %>% 
+  filter(sex == "m")
+
+dead_map <- tm_shape(dead_shp) + 
+  tm_dots(col = "Individuum", 
+             labels = c(paste0("Individuum bekannt (", nrow(dead_known), ")"), 
+                        paste0("Individuum unbekannt (", nrow(dead_unknown), ")")
+                        ),
+             palette = c("red", "honeydew4"),
+             size = 1, 
+             border.col = "grey39",
+             alpha = 0.75,
+             border.lwd = 1,
+             sizes.legend = 5,
+            shape ="sex", 
+             title.shape ="Geschlecht", 
+             shapes = c(24,21),
+             shapes.labels = c(paste0("Weibchen (", nrow(dead_female), ")"),
+                               paste0("Männchen (", nrow(dead_male), ")")
+                               ), 
+             shapes.legend = 22,
+             shapes.legend.fill = "white")+ # include symbol for wolf of other population as soon as field exists in KoraOS
+  tm_layout(title = title_map5,
+            legend.position = c("left","top"),
+            legend.width = 15,
+            legend.text.size = 1.1, 
+            legend.title.size = 1.5, legend.height = .5	,
+            scale = 1.05)
+
+dead_map_de <- background + CHHS + rivers + country + seen + comps_empty + dead_map
+dead_map_de
+tmap_save(dead_map_de, filename = paste0("Tote_Woelfe_", Sys.Date(), ".jpg"))
