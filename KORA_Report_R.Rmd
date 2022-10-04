@@ -232,7 +232,7 @@ Stop<-as.POSIXct(paste(Data[1,session_study_end_date],
 
 #Is there any lynx that was seen before or after the 60 days? 
 
-Seen.external<-Data[,id_individual][which(!(unique(Data[Data$animal_species== "Lynx lynx",id_individual]) %in%
+Seen.external<-unique(Data[Data$animal_species== "Lynx lynx",id_individual])[which(!(unique(Data[Data$animal_species== "Lynx lynx",id_individual]) %in%
 unique(Data[Data$TIME>Start & Data$TIME<Stop & Data$animal_species== "Lynx lynx",id_individual])))]
 
 #To check for a specific individual:
@@ -405,7 +405,7 @@ New.lynx<-Event.report[,which(Event.report$ID %in% New.lynx)]
 Event.report<-flextable(Event.report)
 
 if(Language=="FR"){
- Event.report <- set_caption(Event.report, caption = "Lynx détectés dans l’aire de référence pendant les 60 nuits d’échantillonnage. Un événement comprend toutes les images d'un individu à un site donné séparées de moins de 30 minutes. Connu depuis\ua0: année de la première observation. Mère\ua0: mère des lynx indépendants quand elle est connue. Juvénile(s)\ua0: juvénile(s) des lynx femelles indépendantes quand elles sont connues. Canton(s)\ua0: canton(s) dans le(s)quels les lynx ont été observés lors de la session. Les lynx qui ont été détectés pour la première fois lors de la session sont mis en évidence en **gras**.",autonum = officer::run_autonum(
+ Event.report <- set_caption(Event.report, caption = "Lynx indépenants détectés dans l’aire de référence pendant les 60 nuits d’échantillonnage. Un événement comprend toutes les images d'un individu à un site donné séparées de moins de 30 minutes. Connu depuis\ua0: année de la première observation. Mère\ua0: mère des lynx indépendants quand elle est connue. Juvénile(s)\ua0: juvénile(s) des lynx femelles indépendantes quand elles sont connues. Canton(s)\ua0: canton(s) dans le(s)quels les lynx ont été observés lors de la session. Les lynx qui ont été détectés pour la première fois lors de la session sont mis en évidence en **gras**.",autonum = officer::run_autonum(
   seq_id = "table",
   pre_label = "Tab. ",
   post_label = ". ",
@@ -417,7 +417,7 @@ if(Language=="FR"){
 }
 
 if(Language=="DE"){
- Event.report <- set_caption(Event.report, caption = "Luchse, die in den 60 Nächten des deterministischen Durchgangs fotografiert wurden. Ein Ereignis umfasst alle Bilder eines Luchsindividuums am selben Standort, welche weniger als 30 Minuten auseinander liegen. Bekannt seit: Jahr des ersten Nachweises. Mutter: Mutter von selbständigen Luchsen, sofern bekannt. Juvenil(e): Jungtiere von selbständigen Luchsen, sofern bekannt. Kanton(e): Kantone, in welchen sie während des Durchgangs fotografiert wurden. **Fett** hervorgehoben: Luchse, die während des Durchgangs zum ersten Mal nachgewiesen wurden.",autonum = officer::run_autonum(
+ Event.report <- set_caption(Event.report, caption = "selbständige Luchse, die in den 60 Nächten des deterministischen Durchgangs fotografiert wurden. Ein Ereignis umfasst alle Bilder eines Luchsindividuums am selben Standort, welche weniger als 30 Minuten auseinander liegen. Bekannt seit: Jahr des ersten Nachweises. Mutter: Mutter von selbständigen Luchsen, sofern bekannt. Juvenil(e): Jungtiere von selbständigen Luchsen, sofern bekannt. Kanton(e): Kantone, in welchen sie während des Durchgangs fotografiert wurden. **Fett** hervorgehoben: Luchse, die während des Durchgangs zum ersten Mal nachgewiesen wurden.",autonum = officer::run_autonum(
   seq_id = "table",
   pre_label = "Tab. ",
   post_label = ". ",
@@ -516,7 +516,7 @@ txt.juvasmother<-"A cause de leur faible taux de détection et leur fort taux de
 if(Language=="DE"){
  if(JuvasMother==TRUE){
   
-txt.juvasmother<-"Aufgrund ihrer geringen Erfassbarkeit und hohen Verschwinderate (Mortalität und Dispersal) werden Jungtiere, die während des Durchgangs fotografiert wurden, identifiziert und  im Fangkalender als Fang ihrer Mutter eingetragen." 
+txt.juvasmother<-"Aufgrund ihrer geringen Erfassbarkeit und hohen Verschwinderate (Mortalität und Dispersal) werden Jungtiere, die während des Durchgangs fotografiert wurden, identifiziert und im Fangkalender als Fang ihrer Mutter eingetragen." 
   
 }else{
   
@@ -668,9 +668,9 @@ ggplot2::geom_point(data=DataFULL[DataFULL$animal_species==Species,],ggplot2::ae
 
 
 ggplot2::ggsave(paste(Species,".jpeg",sep=""),plot=map,
-                    units = "cm",
-                    width = 16.5,
-                    height = 17)
+                width = 16.5,
+                    height = 17,
+                units = "cm")
   
 }
 
@@ -1476,14 +1476,14 @@ if(Period.selected==3){
      tck=-0.01,
      xlim=c(1,20),
      #ylim based on period 5 in case higher:
-     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10)) 
+     ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+20)) 
   
   axis(side=1,at=c(1:20),labels = c(1:20),cex.axis=0.85,tck=-0.01)
   par(new=TRUE)
   plot(Occ.table.plot.3$SUM.occasion.cumulative, type="o", 
      xlab = NA,ylab=NA,pch=17,
      axes=FALSE,lwd=1.5,cex=1.5,
-     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+10))
+     xlim=c(1,20),ylim=c(0,foo(max(Occ.table.plot.5$SUM.occasion.cumulative))+20))
   grid(NA,NULL,lwd=1)
   
   if(Language=="FR"){
@@ -2267,7 +2267,7 @@ if(JuvasMother==FALSE){
       \n")
 }
 
-cat("![**Abb. 2.** Verteilung der Standorte (weisse Kreise) im Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) innerhalb des Teil-Kompartiments ",names(Text.table)[Refarea+1]," (schwarzes Polygon). In hellgrün das geeignete Luchshabitat, definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004).](Plot_Introduction.jpeg)")
+cat("![**Abb. 2.** Verteilung der Standorte (weisse Kreise) im Referenzgebiet ",Text.table[1,names(Text.table)[Refarea+1]]," (blaues Polygon) innerhalb des Teil-Kompartiments ",names(Text.table)[Refarea+1]," (schwarzes Polygon). In hellgrün das geeignete Luchshabitat, definiert durch ein Luchs-Habitat-Modell (Zimmermann 2004).](Plot_Introduction.jpeg){width=100%}")
 
 ```
 
@@ -2327,7 +2327,7 @@ if(PercentTN<84.2){
   ValuePercentTN<-" **Dieser Wert liegt unter den Bereich anderer Fotofallen-Untersuchungen, wo wir Werte zwischen 84,2% (Jura Nord, Winter 2006/07) und 99,9% (Zentralschweiz West, Winter 2020/21) hatten.**"
 }
 
-cat("Die potenzielle Anzahl der Fallennächte lag bei ",prettyNum(potentially.TN, big.mark="'"),". **Diebstahl, Vandalismus, technische Probleme, Bedienungsfehler und Schneefall** reduzierten den Aufwand der Probeentnahme auf ",prettyNum(effective.TN, big.mark="'")," tatsächliche Fallennächte, was ",gsub("[.]",",",sprintf("%.1f",PercentTN)),"% des Potenzials entspricht.",ValuePercentTN," **Die positiven Standorte sind gleichmässig über das gesamte Untersuchungsgebiet verteilt (Abb. 3) (Beschreibung der Verteilung).** 
+cat("Die potenzielle Anzahl der Fallennächte lag bei ",prettyNum(potentially.TN, big.mark="'"),". **Diebstahl, Vandalismus, technische Probleme, Bedienungsfehler und Schneefall** reduzierten den Aufwand der Datenerhebung auf ",prettyNum(effective.TN, big.mark="'")," tatsächliche Fallennächte, was ",gsub("[.]",",",sprintf("%.1f",PercentTN)),"% des Potenzials entspricht.",ValuePercentTN," **Die positiven Standorte sind gleichmässig über das gesamte Untersuchungsgebiet verteilt (Abb. 3) (Beschreibung der Verteilung).** 
 
 \n",sep="")
 
@@ -2369,7 +2369,7 @@ as.character(paste('(',paste(sort(Not.seen.opp),collapse = ', '),')',sep='')),
 
 cat("Un total de ",Event[ID=="Total",Event]," événements ont été répertoriés au cours de la période d’échantillonnage de 60 nuits dans l’ensemble de l’aire de référence (Tab. 1). Ceux-ci ont été ramenés à",
 ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])
-," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieures reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment et que les pièges-photos ont fonctionnés normalement, nous pouvons raisonnablement conclure que les lynx n'ont pas commencé à éviter les sites au cours de la période d'échantillonnage (Fig. 4). De plus la majeure partie des lynx présents dans l’aire de référence ont été détectés vu que le nombre de lynx capturés (courbe bleu, Fig. 4) se stabilise déjà à partir de la XXXXième occasion.** \n")
+," par le groupement des détections par occasion (est égale à", ifelse(Period.selected==3,3,5) ,"nuits consécutives lors de cette étude). Si un lynx est photographié à plusieures reprises pendant une même occasion, il compte comme une seule capture. **Vu que le nombre de captures cumulées augmente constamment et que les pièges-photos ont fonctionnés normalement, nous pouvons raisonnablement conclure que les lynx n'ont pas commencé à éviter les sites au cours de la période d'échantillonnage (Fig. 4). Cette augmentation continue est pour le monitoring un indice de bonne qualité. De plus la majeure partie des lynx présents dans l’aire de référence ont été détectés vu que le nombre de lynx capturés (courbe bleu, Fig. 4) se stabilise déjà à partir de la XXXXième occasion.** \n")
 
 if(length(Seen.external)==0){
 cat("**Lors de cette session, il n’y a pas eu de lynx qui ont été détectés en dehors de la période de 60 jours. Tous les lynx détectés ont donc été comptabilisés dans le calendrier de capture en vue des analyses de capture-recapture.** 
@@ -2415,8 +2415,7 @@ as.character(paste('(',paste(sort(Not.seen.opp),collapse = ', '),')',sep='')),
 \n")
 }
 
-cat("Im gesamten Referenzgebiet wurden während der 60 Nächte des deterministischen Fotofallen-Monitorings bei ",Event[ID=="Total",Event]," Ereignissen Luchse fotografiert (Tab. 1). Diese Ereignisse werden für die Analyse in Fanggelegenheiten eingeteilt (in dieser Studie ", ifelse(Period.selected==3,3,5) , "aufeinanderfolgende Nächte) woraus ",ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])," Erfassungen hervorgehen. Wird derselbe Luchs während einer Fanggelegenheit mehrmals fotografiert, zählt dies als eine Erfassung. **Die Zahl der kumulativen Erfassungen nimmt ständig zu (Abb. 4). Dieser kontinuierliche Anstieg ist ein Indiz für einen erfolgreichen Durchgang. Da es keine grossflächigen Einbrüche in der Funktionalität der Fotofallen gab, können wir daraus schliessen, dass Luchse keine Scheu vor den Fotofallen entwickelten. Des Weiteren stabilisiert sich die Anzahl der verschiedenen Luchse (blaue Kurve, Abb. 4) bereits ab der XXXXX Fanggelegenheit, weshalb davon ausgegangen werden kann, dass der Grossteil der Luchse im Referenzgebiet nachgewiesen werden konnte.
-** \n")
+cat("Im gesamten Referenzgebiet wurden während der 60 Nächte des deterministischen Fotofallen-Monitorings bei ",Event[ID=="Total",Event]," Ereignissen Luchse fotografiert (Tab. 1). Diese Ereignisse werden für die Analyse in Fanggelegenheiten eingeteilt (in dieser Studie ", ifelse(Period.selected==3,3,5) , "aufeinanderfolgende Nächte) woraus ",ifelse(Period.selected==3,Occ.table.plot.3[20,SUM.occasion.cumulative], Occ.table.plot.5[12,SUM.occasion.cumulative])," Erfassungen hervorgehen. Wird derselbe Luchs während einer Fanggelegenheit mehrmals fotografiert, zählt dies als eine Erfassung. **Die Zahl der kumulativen Erfassungen nimmt ständig zu (Abb. 4). Dieser kontinuierliche Anstieg ist ein Indiz für einen erfolgreichen Durchgang. Da es keine grossflächigen Einbrüche in der Funktionalität der Fotofallen gab, können wir daraus schliessen, dass Luchse keine Scheu vor den Fotofallen entwickelten. Des Weiteren stabilisiert sich die Anzahl der verschiedenen Luchse (blaue Kurve, Abb. 4) bereits ab der XXXXX Fanggelegenheit, weshalb davon ausgegangen werden kann, dass der Grossteil der Luchse im Referenzgebiet nachgewiesen werden konnte.** \n")
 
 
 if(length(Seen.external)==0){
@@ -2424,9 +2423,9 @@ cat("**Es gab in diesem Durchgang keine Luchse, welche lediglich ausserhalb des 
     
 \n")
 }else{
-cat('**Während diesem Durchgang wurde(n) der/die Luchs(e) ", paste(Seen.external, collapse = ", "), "nur ausserhalb des 60-Tage-Zeitraums entdeckt. Diese Luchse erscheinen auf der Karte (Abb. 3), werden aber in den übrigen Analysen nicht berücksichtigt. Mittels Konfidenzintervall werden diese Luchse aber immer noch in der mittels Fang-Wiederfang geschätzten Abundanz berücksichtigt (siehe Kapitel «Schätzung der Abundanz und Dichte»).**
+cat("**Während diesem Durchgang wurde(n) der/die Luchs(e) ", paste(Seen.external, collapse = ", "), "nur ausserhalb des 60-Tage-Zeitraums entdeckt. Diese Luchse erscheinen auf der Karte (Abb. 3), werden aber in den übrigen Analysen nicht berücksichtigt. Mittels Konfidenzintervall werden diese Luchse aber immer noch in der mittels Fang-Wiederfang geschätzten Abundanz berücksichtigt (siehe Kapitel «Schätzung der Abundanz und Dichte»).**
     
-\n') 
+\n") 
   
 }
 
@@ -2481,7 +2480,7 @@ model.descritption<-data.table(Model=c("0","b","h","t","bh"),
 model.descritption<-model.descritption[model.descritption$Model==substring(Mark.Table.inline[which.best.model.selected,Model], 2),Description]
 
 
-cat("Das Modell ",paste("M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~",sep=""),", ",model.descritption,", erklärt die Daten am besten. Die resultierende geschätzte Abundanz (95% Konfidenzintervall) anhand dieses Fang-Wiederfang-Modells istr ",
+cat("Das Modell ",paste("M~",substr(Mark.Table.inline[which.best.model.selected,Model], 2, 3),"~",sep=""),", ",model.descritption,", erklärt die Daten am besten. Die resultierende geschätzte Abundanz (95% Konfidenzintervall) anhand dieses Fang-Wiederfang-Modells ist ",
 paste(Mark.Table.inline[which.best.model.selected,N])," (",sub("\\-.*", "", Mark.Table.inline[which.best.model.selected,IC])," - ",sub("..-*", "", Mark.Table.inline[which.best.model.selected,IC]),")  selbständige  Luchse. ", prettyNum(as.numeric(sprintf("%.1f",round((length(Lynx.Table.Adult$ID)*100)/Mark.Table.inline[which.best.model.selected,N],1))),decimal.mark = ","),"% der geschätzten Luchse wurden demnach tatsächlich fotografiert. 
 \n", sep="")
 
@@ -2746,7 +2745,7 @@ cat("### Anhänge \n")
 
 Species.other.table<-data.table(Latin=c("Canis lupus","Felis silvestris","Canis aureus"),
                                 FR=c("loup","chat sauvage","chacal doré"),
-                                FRs=c("loups","chats sauvage","chacals doré"))
+                                FRs=c("loups","chats sauvages","chacals dorés"))
 
 if(length(Species.other)>0){
   
