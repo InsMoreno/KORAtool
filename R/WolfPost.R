@@ -132,9 +132,9 @@ pts<-as.data.table(pts)
 Table[,"Kompartiment_Compartiment"]<-pts$Nummer
 
 # --- Remove x/y and location if wolf dead
-suppressWarnings(Table[Table$Wolf_ID_Loup_ID %in% w.dead[,wolf] & Table$Wolf_ID_Loup_ID!="", c("Flurname_Location","x","y")]<-"")
+suppressWarnings(Table[Table$Typ_Finder_Type_Trouveur == "FIWI", c("Flurname_Location","x","y")]<-"")
 
-suppressWarnings(Table[Table$ID_Genetics %in% c("WCH-09668", "WCH-09669"), c("Flurname_Location","x","y")]<-"")
+#suppressWarnings(Table[Table$ID_Genetics %in% c("WCH-09668", "WCH-09669"), c("Flurname_Location","x","y")]<-"")
 
 # --- Translation within columns:
 
