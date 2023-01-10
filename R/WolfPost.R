@@ -19,8 +19,7 @@ library(stringr)
 
 # - Info LBC ####
 LBC<- as.data.table(read_excel("Input/LBC.xlsx"))
-# - Info wold dead  ####
-w.dead<-fread("Input/wolf_dead.csv")
+
 # - Data KORA Report ####
 
 event<-fread("Input/event_data.csv", encoding = 'UTF-8')
