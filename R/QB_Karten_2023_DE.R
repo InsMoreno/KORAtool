@@ -46,15 +46,6 @@ if (Sys.info()["sysname"] == "Darwin") {  # macOS
   # Handle other operating systems if needed
 }
 
-#load data
-koraNextDB <- dbConnect(RMariaDB::MariaDB(), 
-                              user='8sjecxkl1vfwp1mj0fl7',
-                              password="pscale_pw_x3D6OlYREaNmInlFr3MP7etCfcioLHClnC2MC9dBYub",
-                              dbname='kora-next', 
-                              host='eu-west.connect.psdb.cloud',
-                              ssl.ca=ssl_ca_value)
-
-
 
 
 query <- paste("SELECT * from WolfPack")
